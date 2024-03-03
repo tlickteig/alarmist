@@ -6,51 +6,52 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent { // In here, we can call composables!
-            MaterialTheme {
-                Row {
-                    Column {
-                        Greeting(name = "World")
-                        CurrentTime()
-                        GetAlarmName()
-                        GetAlarmTime()
+        setContent {
+            ModalNavigationDrawer(
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Text("Alarmist", modifier = Modifier.padding(16.dp))
+                        /*Divider()*/
+                        NavigationDrawerItem(
+                            label = { Text("Hello World!") },
+                            selected = false,
+                            onClick = { /*TODO*/ })
                     }
+                }
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text("This is the top bar")
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Text("This is the main page")
                 }
             }
         }
     }
-}
-
-
-@Composable
-fun Greeting(name: String) {
-    Column {
-        Text(text = "Hello $name!", color = CustomColors.TextColor)
-    }
-}
-
-@Preview
-@Composable
-fun CurrentTime() {
-        Text(text = "When you opened the app it was "+ Date().toString(), color = CustomColors.TextColor)
-}
-
-@Composable
-fun GetAlarmName() {
-    Text(text = "Undefined Name.", color = CustomColors.TextColor)
-}
-
-@Composable
-fun GetAlarmTime() {
-    Text(text = Date().time.toString(), color = CustomColors.TextColor)
 }
