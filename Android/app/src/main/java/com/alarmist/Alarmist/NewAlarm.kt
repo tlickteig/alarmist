@@ -81,36 +81,6 @@ class NewAlarm : ComponentActivity() {
                             }
                         )
 
-                        /*Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = scheduleMode.value == AlarmSchedule.SCHEDULED,
-                                onClick = { scheduleMode.value = AlarmSchedule.SCHEDULED }
-                            )
-                            Text("Scheduled")
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = scheduleMode.value == AlarmSchedule.ONE_TIME,
-                                onClick = { scheduleMode.value = AlarmSchedule.ONE_TIME }
-                            )
-                            Text("One Time")
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = scheduleMode.value == AlarmSchedule.SPECIFIC_DAYS,
-                                onClick = { scheduleMode.value = AlarmSchedule.SPECIFIC_DAYS }
-                            )
-                            Text("Specific Days")
-                        }*/
-
                         WheelTimePicker(
                             timeFormat = TimeFormat.AM_PM
                         ) {
