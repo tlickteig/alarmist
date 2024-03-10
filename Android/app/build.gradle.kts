@@ -70,4 +70,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.compose.runtime:runtime-rxjava2")
+    implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
 }

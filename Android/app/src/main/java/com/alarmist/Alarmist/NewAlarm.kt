@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -22,11 +23,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role.Companion.RadioButton
 import androidx.compose.ui.text.input.TextFieldValue
 import com.alarmist.Alarmist.classes.AlarmSchedule
 import com.alarmist.Alarmist.classes.CustomColors
+import com.commandiron.wheel_picker_compose.WheelTimePicker
+import com.commandiron.wheel_picker_compose.core.TimeFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 class NewAlarm : ComponentActivity() {
@@ -77,23 +81,42 @@ class NewAlarm : ComponentActivity() {
                             }
                         )
 
-                        RadioButton(
-                            selected = scheduleMode.value == AlarmSchedule.SCHEDULED,
-                            onClick = { scheduleMode.value = AlarmSchedule.SCHEDULED }
-                        )
-                        Text("Scheduled")
+                        /*Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = scheduleMode.value == AlarmSchedule.SCHEDULED,
+                                onClick = { scheduleMode.value = AlarmSchedule.SCHEDULED }
+                            )
+                            Text("Scheduled")
+                        }
 
-                        RadioButton(
-                            selected = scheduleMode.value == AlarmSchedule.ONE_TIME,
-                            onClick = { scheduleMode.value = AlarmSchedule.ONE_TIME }
-                        )
-                        Text("One Time")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = scheduleMode.value == AlarmSchedule.ONE_TIME,
+                                onClick = { scheduleMode.value = AlarmSchedule.ONE_TIME }
+                            )
+                            Text("One Time")
+                        }
 
-                        RadioButton(
-                            selected = scheduleMode.value == AlarmSchedule.SPECIFIC_DAYS,
-                            onClick = { scheduleMode.value = AlarmSchedule.SPECIFIC_DAYS }
-                        )
-                        Text("Specific Days")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = scheduleMode.value == AlarmSchedule.SPECIFIC_DAYS,
+                                onClick = { scheduleMode.value = AlarmSchedule.SPECIFIC_DAYS }
+                            )
+                            Text("Specific Days")
+                        }*/
+
+                        WheelTimePicker(
+                            timeFormat = TimeFormat.AM_PM
+                        ) {
+                            snappedTime ->
+
+                        }
                     }
                 }
             }
