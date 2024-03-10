@@ -22,5 +22,13 @@ class CustomColors {
             } else {
                 Color(0xFF4A4A4A)
             }
+
+        val TitleBarColor: Color
+            @Composable
+            get() = if (isSystemInDarkTheme()) {
+                Color(0xFF4A4A4A)
+            } else {
+                Color(0xFFEAEAEA)
+            }
     }
 }
