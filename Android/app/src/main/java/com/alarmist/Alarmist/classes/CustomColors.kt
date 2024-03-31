@@ -23,12 +23,24 @@ class CustomColors {
                 Color(0xFF4A4A4A)
             }
 
+        val TextButtonColor: Color
+            @Composable
+            get() = Color.Blue
+
         val TitleBarColor: Color
             @Composable
             get() = if (isSystemInDarkTheme()) {
                 Color(0xFF4A4A4A)
             } else {
                 Color(0xFFEAEAEA)
+            }
+
+        val DialogBackgroundColor: Color
+            @Composable
+            get() = if (isSystemInDarkTheme()) {
+                Color(0xFF535353)
+            } else {
+                Color.White
             }
     }
 }
