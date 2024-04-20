@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +33,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,8 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.text.util.LocalePreferences.FirstDayOfWeek.Days
+import com.alarmist.Alarmist.classes.Alarm
 import com.alarmist.Alarmist.classes.AlarmSchedule
 import com.alarmist.Alarmist.classes.CustomColors
+import com.alarmist.Alarmist.classes.DaysOfWeek
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
@@ -62,7 +68,15 @@ class NewAlarm : ComponentActivity() {
 
             MaterialTheme {
                 var alarmName by remember { mutableStateOf(TextFieldValue("")) }
-                var scheduleMode = remember { mutableStateOf(AlarmSchedule.SCHEDULED) }
+                var scheduleMode by remember { mutableStateOf(AlarmSchedule.SCHEDULED) }
+
+                var isSundayChecked by remember { mutableStateOf(false) }
+                var isMondayChecked by remember { mutableStateOf(false) }
+                var isTuesdayChecked by remember { mutableStateOf(false) }
+                var isWednesdayChecked by remember { mutableStateOf(false) }
+                var isThursdayChecked by remember { mutableStateOf(false) }
+                var isFridayChecked by remember { mutableStateOf(false) }
+                var isSaturdayChecked by remember { mutableStateOf(false) }
 
                 Scaffold(
                     topBar = {
@@ -124,12 +138,12 @@ class NewAlarm : ComponentActivity() {
                             }
 
                             IconButton(
-                                onClick = { /*TODO*/ }
+                                onClick = { isWeekPickerOpen.value = true }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.CalendarMonth,
                                     contentDescription = "Choose dates",
-                                    tint = CustomColors.TextColor
+                                    tint = CustomColors.TextButtonColor
                                 )
                             }
                         }
@@ -163,22 +177,162 @@ class NewAlarm : ComponentActivity() {
                                     ) {
                                         Text(
                                             text = "Set Days",
-                                            //fontFamily = CustomFonts.MinecraftFont,
                                             textAlign = TextAlign.Center,
                                             color = CustomColors.TextColor,
                                             modifier = Modifier.fillMaxWidth()
                                         )
 
                                         Row(
-                                            horizontalArrangement = Arrangement.Center
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Checkbox(
-                                                checked = false,
-                                                onCheckedChange = { isChecked -> print(isChecked) }
+                                                checked = isSundayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isSundayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
                                             )
 
                                             Text (
-                                                text = "Monday"
+                                                text = "Sunday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isMondayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isMondayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Monday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isTuesdayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isTuesdayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Tuesday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isWednesdayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isWednesdayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Wednesday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isThursdayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isThursdayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Thursday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isFridayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isFridayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Friday",
+                                                color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = isSaturdayChecked,
+                                                onCheckedChange = { isChecked ->
+                                                    isSaturdayChecked = isChecked
+                                                },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkmarkColor = CustomColors.BackgroundColor,
+                                                    uncheckedColor = CustomColors.TextColor,
+                                                    checkedColor = CustomColors.TextColor
+                                                )
+                                            )
+
+                                            Text (
+                                                text = "Saturday",
+                                                color = CustomColors.TextColor
                                             )
                                         }
                                     }
