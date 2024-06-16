@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +57,8 @@ import com.alarmist.Alarmist.classes.DaysOfWeek
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
+import com.flexcode.multiselectcalendar.MultiSelectCalendar
+import com.flexcode.multiselectcalendar.rememberMultiSelectCalendarState
 
 @OptIn(ExperimentalMaterial3Api::class)
 class NewAlarm : ComponentActivity() {
@@ -77,6 +81,9 @@ class NewAlarm : ComponentActivity() {
                 var isThursdayChecked by remember { mutableStateOf(false) }
                 var isFridayChecked by remember { mutableStateOf(false) }
                 var isSaturdayChecked by remember { mutableStateOf(false) }
+                val multiSelectState = rememberMultiSelectCalendarState(
+                    initialSelectedDates = emptyList()
+                )
 
                 Scaffold(
                     topBar = {
@@ -138,13 +145,61 @@ class NewAlarm : ComponentActivity() {
                             }
 
                             IconButton(
-                                onClick = { isWeekPickerOpen.value = true }
+                                onClick = { isCalendarOpen.value = true }
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.CalendarMonth,
                                     contentDescription = "Choose dates",
                                     tint = CustomColors.TextButtonColor
                                 )
+                            }
+                        }
+                    }
+                }
+
+                if (isCalendarOpen.value) {
+                    Dialog(
+                        onDismissRequest = { isCalendarOpen.value = false }
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color.Transparent
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(top = 15.dp)
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = CustomColors.DialogBackgroundColor,
+                                            shape = RoundedCornerShape(percent = 10)
+                                        )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp)
+                                    ) {
+                                        Text(
+                                            text = "Set Days",
+                                            textAlign = TextAlign.Center,
+                                            color = CustomColors.TextColor,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+
+                                        /*DatePicker(
+                                            state = selectedDate,
+                                            title = { },
+                                            showModeToggle = false,
+                                        )*/
+
+                                        MultiSelectCalendar(
+
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
