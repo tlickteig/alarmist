@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.End
 import androidx.compose.foundation.layout.Box
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.alarmist.Alarmist.classes.Alarm
 import com.alarmist.Alarmist.classes.CustomFonts
 import com.alarmist.Alarmist.classes.FontAwesomeConstants
+import com.alarmist.Alarmist.classes.Utilities
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -117,10 +119,11 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
                         val alarmList = remember { mutableStateListOf<Alarm>() }
-                        alarmList.add(Alarm().apply {
-                            name = "Alarm 1"
-                            isEnabled = false
-                        })
+                        var tempAlarmList = Utilities.returnAllAlarms()
+
+                        for (alarm in tempAlarmList) {
+                            alarmList.add(alarm)
+                        }
 
                         LazyColumn(
                             modifier = Modifier.padding(innerPadding)
@@ -139,44 +142,54 @@ class MainActivity : ComponentActivity() {
     fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
         var checked by remember { mutableStateOf(true) }
 
-        Row (
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(10.dp)
+        Column (
+            modifier = Modifier.clickable {
+                println("sfsafasdf")
+            }
         ) {
-            Text(
-                text = alarm.name,
-                fontSize = 30.sp
-            )
-
-            Box(
-                contentAlignment = Alignment.CenterEnd,
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
-                Switch(
-                    checked = checked,
-                    onCheckedChange = {
-                        checked = it
-                        alarmList.add(Alarm().apply {
-                            isEnabled = false
-                            name = "Test alarm"
-                        })
-                    }
+                Text(
+                    text = alarm.name,
+                    fontSize = 30.sp
+                )
+
+                Box(
+                    contentAlignment = Alignment.CenterEnd,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Switch(
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+
+                            var tempAlarmList = Utilities.returnAllAlarms()
+                            alarmList.clear()
+
+                            for (alarm in tempAlarmList) {
+                                alarmList.add(alarm)
+                            }
+                        }
+                    )
+                }
+            }
+
+            if (!alarm.willGoOff.isNullOrBlank()) {
+                Text(
+                    text = alarm.willGoOff,
+                    modifier = Modifier.padding(5.dp)
+                )
+            } else {
+                Text(
+                    text = "",
+                    modifier = Modifier.padding(5.dp)
                 )
             }
-        }
-
-        if (!alarm.willGoOff.isNullOrBlank()) {
-            Text(
-                text = alarm.willGoOff,
-                modifier = Modifier.padding(5.dp)
-            )
-        }
-        else {
-            Text(
-                text = "",
-                modifier = Modifier.padding(5.dp)
-            )
         }
 
         HorizontalDivider(
