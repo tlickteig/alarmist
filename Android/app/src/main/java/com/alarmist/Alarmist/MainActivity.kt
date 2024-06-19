@@ -5,9 +5,11 @@ import com.alarmist.Alarmist.classes.CustomColors
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -26,11 +28,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.alarmist.Alarmist.classes.Alarm
+import com.alarmist.Alarmist.classes.CustomFonts
+import com.alarmist.Alarmist.classes.FontAwesomeConstants
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -72,7 +79,10 @@ class MainActivity : ComponentActivity() {
                         topBar = {
                             TopAppBar(
                                 title = {
-                                    Row {
+                                    Row (
+                                        horizontalArrangement = Arrangement.Start,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
                                         TextButton(
                                             onClick = {
                                                 scope.launch {
@@ -82,9 +92,15 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                         ) {
-                                            Text("F")
+                                            Text(
+                                                text = FontAwesomeConstants.MENU_ICON,
+                                                fontFamily = CustomFonts.FontAwesome,
+                                                fontSize = 20.sp
+                                            )
                                         }
-                                        Text("My Alarms")
+                                        Text(
+                                            text = "My Alarms"
+                                        )
                                     }
                                 }
                             )
