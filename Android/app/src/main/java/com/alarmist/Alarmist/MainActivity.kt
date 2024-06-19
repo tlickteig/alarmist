@@ -166,6 +166,19 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        if (!alarm.willGoOff.isNullOrBlank()) {
+            Text(
+                text = alarm.willGoOff,
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+        else {
+            Text(
+                text = "",
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+
         HorizontalDivider(
             thickness = 2.dp
         )
