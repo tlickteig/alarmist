@@ -14,5 +14,8 @@ class Alarm {
 
     var specificDays: List<Date> = mutableListOf()
     var daysOfWeek: HashSet<DaysOfWeek> = hashSetOf()
-    var willGoOff: Date = Date()
+    var willGoOff: String = ""
+        get() {
+            return "Hello World!"
+        }
 }
