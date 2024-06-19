@@ -5,9 +5,13 @@ import com.alarmist.Alarmist.classes.CustomColors
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.End
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,8 +39,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role.Companion.Switch
 import androidx.compose.ui.text.style.TextAlign
@@ -51,10 +57,6 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
-    companion object {
-        var alarmList: List<Alarm> = mutableStateListOf();
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,20 +65,6 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
-                alarmList = listOf(
-                    Alarm().apply {
-                        name = "Alarm 1"
-                    },
-                    Alarm().apply {
-                        name = "Alarm 2"
-                    },
-                    Alarm().apply {
-                        name = "Alarm 3"
-                    },
-                    Alarm().apply {
-                        name = "Alarm 4"
-                    }
-                )
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -128,16 +116,17 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) { innerPadding ->
+                        val alarmList = remember { mutableStateListOf<Alarm>() }
+                        alarmList.add(Alarm().apply {
+                            name = "Alarm 1"
+                            isEnabled = false
+                        })
+
                         LazyColumn(
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            /*Text("This is the main page")
-                            alarmList.forEach {alarm ->
-                                AlarmItem(alarm)
-                            }*/
-
                             items(alarmList) {item ->
-                                AlarmItem(item)
+                                AlarmItem(item, alarmList)
                             }
                         }
                     }
@@ -147,25 +136,34 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AlarmItem(alarm: Alarm) {
+    fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
         var checked by remember { mutableStateOf(true) }
 
-        Row {
+        Row (
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(10.dp)
+        ) {
             Text(
                 text = alarm.name,
                 fontSize = 30.sp
             )
 
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    checked = it
-                    alarmList = alarmList + listOf(Alarm().apply {
-                        isEnabled = false
-                        name = "Test alarm"
-                    })
-                }
-            )
+            Box(
+                contentAlignment = Alignment.CenterEnd,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        checked = it
+                        alarmList.add(Alarm().apply {
+                            isEnabled = false
+                            name = "Test alarm"
+                        })
+                    }
+                )
+            }
         }
 
         HorizontalDivider(
