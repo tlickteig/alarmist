@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 android {
@@ -74,4 +75,5 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-rxjava2")
     implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
     implementation("com.github.Felix-Kariuki.MultiSelectCalendar:multiSelectCalendar:v0.1.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }

@@ -1,5 +1,6 @@
 package com.alarmist.Alarmist
 
+import android.app.Activity
 import android.content.Intent
 import com.alarmist.Alarmist.classes.CustomColors
 import android.os.Bundle
@@ -65,6 +66,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 val context = LocalContext.current
+                var activity = LocalContext.current as Activity
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
 
@@ -119,7 +121,7 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
                         val alarmList = remember { mutableStateListOf<Alarm>() }
-                        var tempAlarmList = Utilities.returnAllAlarms()
+                        var tempAlarmList = Utilities.returnAllAlarms(activity)
 
                         for (alarm in tempAlarmList) {
                             alarmList.add(alarm)
@@ -141,10 +143,15 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
         var checked by remember { mutableStateOf(true) }
+        var activity = LocalContext.current as Activity
 
         Column (
             modifier = Modifier.clickable {
                 println("sfsafasdf")
+                Utilities.saveOrUpdateAlarm(Alarm().apply {
+                    name = "asdfasdfsafd"
+                    id = 25
+                }, activity)
             }
         ) {
             Row(
@@ -168,7 +175,7 @@ class MainActivity : ComponentActivity() {
                         onCheckedChange = {
                             checked = it
 
-                            var tempAlarmList = Utilities.returnAllAlarms()
+                            var tempAlarmList = Utilities.returnAllAlarms(activity)
                             alarmList.clear()
 
                             for (alarm in tempAlarmList) {
