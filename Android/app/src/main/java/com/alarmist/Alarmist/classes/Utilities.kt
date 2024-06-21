@@ -21,7 +21,7 @@ class Utilities {
             for (key in sharedPreferenceKeys) {
                 val alarmString = sharedPref.getString(key, "")
                 if (!alarmString.isNullOrBlank()) {
-                    val alarm = AlarmSerialization.deserializeAlarm(alarmString!!)
+                    val alarm = AlarmSerializer.deserializeAlarm(alarmString!!)
                     output += listOf(alarm)
                 }
             }
@@ -32,7 +32,7 @@ class Utilities {
 
             val sharedPref = activity?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE) ?: return
-            val serializedAlarm = AlarmSerialization.serializeAlarm(alarm);
+            val serializedAlarm = AlarmSerializer.serializeAlarm(alarm);
             var id = alarm.id
             val key = "${Constants.ALARM_PREFIX_FOR_SHARED_PREFERENCES}_$id"
 
@@ -40,19 +40,6 @@ class Utilities {
                 putString(key, serializedAlarm)
                 apply()
             }
-        }
-    }
-}
-
-class AlarmSerialization {
-    companion object {
-
-        fun serializeAlarm(input: Alarm): String {
-            return Json.encodeToString(input);
-        }
-
-        fun deserializeAlarm(input: String): Alarm {
-            return Json.decodeFromString<Alarm>(input)
         }
     }
 }

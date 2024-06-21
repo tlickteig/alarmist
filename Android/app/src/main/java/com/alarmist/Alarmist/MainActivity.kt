@@ -56,6 +56,7 @@ import com.alarmist.Alarmist.classes.CustomFonts
 import com.alarmist.Alarmist.classes.FontAwesomeConstants
 import com.alarmist.Alarmist.classes.Utilities
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +87,16 @@ class MainActivity : ComponentActivity() {
                                     )
                                     context.startActivity(intent)
                                 })
+
+                            TextButton(onClick = {
+                                Utilities.saveOrUpdateAlarm(Alarm().apply {
+                                    name = "asdfasdfsafd"
+                                    id = 25
+                                    specificDays = mutableListOf(LocalDate.now())
+                                }, activity)
+                            }) {
+                                Text("Test")
+                            }
                         }
                     }
                 ) {
@@ -148,10 +159,6 @@ class MainActivity : ComponentActivity() {
         Column (
             modifier = Modifier.clickable {
                 println("sfsafasdf")
-                Utilities.saveOrUpdateAlarm(Alarm().apply {
-                    name = "asdfasdfsafd"
-                    id = 25
-                }, activity)
             }
         ) {
             Row(
