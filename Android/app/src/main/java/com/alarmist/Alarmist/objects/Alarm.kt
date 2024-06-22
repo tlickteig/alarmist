@@ -24,7 +24,7 @@ class Alarm {
     var specificDays: List<@Serializable(with = DateSerializer::class) LocalDate> = mutableListOf()
     var daysOfWeek: HashSet<DaysOfWeek> = hashSetOf()
 
-    var willGoOff: String = ""
+    var subText: String = ""
         get() {
             return "Hello World!"
         }

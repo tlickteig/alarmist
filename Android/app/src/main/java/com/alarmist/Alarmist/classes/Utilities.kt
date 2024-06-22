@@ -8,9 +8,10 @@ class DataAccess {
     companion object {
         fun returnAllAlarms(activity: Activity): List<Alarm> {
 
-            val sharedPref = activity?.getSharedPreferences(
-                Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE)
             var output: List<Alarm> = mutableListOf();
+            val sharedPref = activity?.getSharedPreferences(
+                Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE
+            )
             val sharedPreferenceKeys = sharedPref!!.all.map { it.key }
 
             for (key in sharedPreferenceKeys) {
@@ -20,6 +21,7 @@ class DataAccess {
                     output += listOf(alarm)
                 }
             }
+
             return output;
         }
 
@@ -60,7 +62,5 @@ class DataAccess {
 
 class Utilities {
     companion object {
-
-
     }
 }

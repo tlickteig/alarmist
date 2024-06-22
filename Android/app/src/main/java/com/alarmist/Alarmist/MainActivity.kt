@@ -28,18 +28,24 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.alarmist.Alarmist.objects.Alarm
 import com.alarmist.Alarmist.classes.CustomFonts
 import com.alarmist.Alarmist.classes.DataAccess
@@ -74,16 +80,11 @@ class MainActivity : ComponentActivity() {
                                     var intent = Intent(
                                         context, NewAlarm::class.java
                                     )
+
                                     context.startActivity(intent)
                                 })
 
                             TextButton(onClick = {
-                                /*Utilities.saveOrUpdateAlarm(Alarm().apply {
-                                    name = "asdfasdfsafd"
-                                    id = 25
-                                    specificDays = mutableListOf(LocalDate.now())
-                                }, activity)*/
-
                                 var test = DataAccess.returnAvailableAlarmId(activity)
                             }) {
                                 Text("Test")
@@ -122,13 +123,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) { innerPadding ->
-                        var tempAlarmList = DataAccess.returnAllAlarms(activity)
-                        alarmList.clear()
-
-                        for (alarm in tempAlarmList) {
-                            alarmList.add(alarm)
-                        }
-
                         LazyColumn(
                             modifier = Modifier.padding(innerPadding)
                         ) {
@@ -136,6 +130,20 @@ class MainActivity : ComponentActivity() {
                                 AlarmItem(item, alarmList)
                             }
                         }
+                    }
+                }
+
+                OnLifecycleEvent { owner, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_RESUME -> {
+                            var tempAlarmList = DataAccess.returnAllAlarms(activity)
+                            alarmList.clear()
+
+                            for (alarm in tempAlarmList) {
+                                alarmList.add(alarm)
+                            }
+                        }
+                        else -> { /* Don't do anything */ }
                     }
                 }
             }
@@ -184,9 +192,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            if (!alarm.willGoOff.isNullOrBlank()) {
+            if (!alarm.subText.isNullOrBlank()) {
                 Text(
-                    text = alarm.willGoOff,
+                    text = alarm.subText,
                     modifier = Modifier.padding(5.dp)
                 )
             } else {
@@ -200,5 +208,24 @@ class MainActivity : ComponentActivity() {
         HorizontalDivider(
             thickness = 2.dp
         )
+    }
+
+    // https://stackoverflow.com/questions/66546962/jetpack-compose-how-do-i-refresh-a-screen-when-app-returns-to-foreground
+    @Composable
+    fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
+        val eventHandler = rememberUpdatedState(onEvent)
+        val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+
+        DisposableEffect(lifecycleOwner.value) {
+            val lifecycle = lifecycleOwner.value.lifecycle
+            val observer = LifecycleEventObserver { owner, event ->
+                eventHandler.value(owner, event)
+            }
+
+            lifecycle.addObserver(observer)
+            onDispose {
+                lifecycle.removeObserver(observer)
+            }
+        }
     }
 }
