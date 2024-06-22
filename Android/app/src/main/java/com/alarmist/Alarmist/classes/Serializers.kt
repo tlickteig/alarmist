@@ -1,5 +1,6 @@
 package com.alarmist.Alarmist.classes
 
+import com.alarmist.Alarmist.objects.Alarm
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encodeToString
@@ -9,7 +10,6 @@ import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 @Serializer(forClass = LocalDate::class)
 class DateSerializer : KSerializer<LocalDate> {

@@ -2,15 +2,10 @@ package com.alarmist.Alarmist.classes
 
 import android.app.Activity
 import android.content.Context
-import android.provider.Settings.Global.getString
-import androidx.compose.runtime.mutableStateListOf
-import com.alarmist.Alarmist.R
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.alarmist.Alarmist.objects.Alarm
 
-class Utilities {
+class DataAccess {
     companion object {
-
         fun returnAllAlarms(activity: Activity): List<Alarm> {
 
             val sharedPref = activity?.getSharedPreferences(
@@ -41,5 +36,31 @@ class Utilities {
                 apply()
             }
         }
+
+        fun returnAvailableAlarmId(activity: Activity): Int {
+
+            val sharedPref = activity?.getSharedPreferences(
+                Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE)
+            val sharedPreferenceKeys = sharedPref!!.all.map { it.key }
+            var maxAlarmId = 0
+            for (key in sharedPreferenceKeys) {
+                val alarmString = sharedPref.getString(key, "")
+                if (!alarmString.isNullOrBlank()) {
+                    val alarm = AlarmSerializer.deserializeAlarm(alarmString!!)
+                    if (alarm.id > maxAlarmId) {
+                        maxAlarmId = alarm.id
+                    }
+                }
+            }
+
+            return maxAlarmId + 1
+        }
+    }
+}
+
+class Utilities {
+    companion object {
+
+
     }
 }

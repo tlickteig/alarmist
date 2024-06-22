@@ -1,7 +1,10 @@
-package com.alarmist.Alarmist.classes
+package com.alarmist.Alarmist.objects
 
+import com.alarmist.Alarmist.classes.AlarmSchedule
+import com.alarmist.Alarmist.classes.DateSerializer
+import com.alarmist.Alarmist.classes.DaysOfWeek
+import com.alarmist.Alarmist.classes.TimeSerializer
 import kotlinx.serialization.Serializable
-import java.sql.Date
 import java.time.LocalDate
 import java.time.LocalTime
 
