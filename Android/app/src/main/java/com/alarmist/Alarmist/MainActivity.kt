@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
                 var activity = LocalContext.current as Activity
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
+                val alarmList = remember { mutableStateListOf<Alarm>() }
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -121,8 +122,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) { innerPadding ->
-                        val alarmList = remember { mutableStateListOf<Alarm>() }
                         var tempAlarmList = DataAccess.returnAllAlarms(activity)
+                        alarmList.clear()
 
                         for (alarm in tempAlarmList) {
                             alarmList.add(alarm)
@@ -159,7 +160,7 @@ class MainActivity : ComponentActivity() {
                     .padding(10.dp)
             ) {
                 Text(
-                    text = alarm.name,
+                    text = alarm.title,
                     fontSize = 30.sp
                 )
 

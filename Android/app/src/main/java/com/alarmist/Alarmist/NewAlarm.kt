@@ -1,5 +1,6 @@
 package com.alarmist.Alarmist
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -43,12 +46,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.alarmist.Alarmist.classes.AlarmSchedule
 import com.alarmist.Alarmist.classes.CustomColors
+import com.alarmist.Alarmist.classes.DataAccess
+import com.alarmist.Alarmist.classes.DaysOfWeek
 import com.alarmist.Alarmist.objects.Alarm
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.commandiron.wheel_picker_compose.core.WheelPickerDefaults
 import com.flexcode.multiselectcalendar.MultiSelectCalendar
 import com.flexcode.multiselectcalendar.rememberMultiSelectCalendarState
+import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 class NewAlarm : ComponentActivity() {
@@ -59,11 +65,12 @@ class NewAlarm : ComponentActivity() {
         setContent {
             var isWeekPickerOpen = remember { mutableStateOf(false) }
             var isCalendarOpen = remember { mutableStateOf(false) }
+            var alarmId = 0
+            val context = LocalContext.current
+            var activity = context as Activity
 
             MaterialTheme {
                 var alarmName by remember { mutableStateOf(TextFieldValue("")) }
-                //var scheduleMode by remember { mutableStateOf(AlarmSchedule.SCHEDULED) }
-
                 var isSundayChecked by remember { mutableStateOf(false) }
                 var isMondayChecked by remember { mutableStateOf(false) }
                 var isTuesdayChecked by remember { mutableStateOf(false) }
@@ -74,6 +81,7 @@ class NewAlarm : ComponentActivity() {
                 val multiSelectState = rememberMultiSelectCalendarState(
                     initialSelectedDates = emptyList()
                 )
+                var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
 
                 Scaffold(
                     topBar = {
@@ -121,10 +129,11 @@ class NewAlarm : ComponentActivity() {
                             textColor = Color.Blue,
                             selectorProperties = WheelPickerDefaults.selectorProperties(
                                 enabled = false
-                            )
+                            ),
+                            startTime = timeToGoOff
                         ) {
                             snappedTime ->
-
+                            timeToGoOff = snappedTime
                         }
 
                         Row() {
@@ -146,21 +155,61 @@ class NewAlarm : ComponentActivity() {
                         }
 
                         fun processNewAlarm() {
-                            var scheduleMode = AlarmSchedule.ONE_TIME
+                            var schedule = AlarmSchedule.ONE_TIME
                             var selectedDates = multiSelectState.selectedState.selected
 
                             if (isSundayChecked || isMondayChecked || isTuesdayChecked
                                 || isWednesdayChecked || isThursdayChecked || isFridayChecked
                                 || isSaturdayChecked) {
 
-                                scheduleMode = AlarmSchedule.SCHEDULED
+                                schedule = AlarmSchedule.SCHEDULED
                             } else if (selectedDates.isNotEmpty()) {
-                                scheduleMode = AlarmSchedule.SPECIFIC_DAYS
+                                schedule = AlarmSchedule.SPECIFIC_DAYS
+                            }
+
+                            val selectedDays: HashSet<DaysOfWeek> = hashSetOf()
+                            if (isSundayChecked) {
+                                selectedDays.add(DaysOfWeek.SUNDAY)
+                            }
+
+                            if (isMondayChecked) {
+                                selectedDays.add(DaysOfWeek.MONDAY)
+                            }
+
+                            if (isTuesdayChecked) {
+                                selectedDays.add(DaysOfWeek.TUESDAY)
+                            }
+
+                            if (isWednesdayChecked) {
+                                selectedDays.add(DaysOfWeek.WEDNESDAY)
+                            }
+
+                            if (isThursdayChecked) {
+                                selectedDays.add(DaysOfWeek.THURSDAY)
+                            }
+
+                            if (isFridayChecked) {
+                                selectedDays.add(DaysOfWeek.FRIDAY)
+                            }
+
+                            if (isSaturdayChecked) {
+                                selectedDays.add(DaysOfWeek.SATURDAY)
+                            }
+
+                            if (alarmId == 0) {
+                                alarmId = DataAccess.returnAvailableAlarmId(activity)
                             }
 
                             var alarm = Alarm().apply {
-                                
+                                name = alarmName.text
+                                specificDays = selectedDates
+                                scheduleMode = schedule
+                                daysOfWeek = selectedDays
+                                time = timeToGoOff
+                                id = alarmId
                             }
+
+                            DataAccess.saveOrUpdateAlarm(alarm, activity)
                         }
 
                         Button(

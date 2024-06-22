@@ -7,6 +7,8 @@ import com.alarmist.Alarmist.classes.TimeSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Serializable
 class Alarm {
@@ -25,5 +27,14 @@ class Alarm {
     var willGoOff: String = ""
         get() {
             return "Hello World!"
+        }
+
+    var title: String = ""
+        get() {
+            var output = time.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+            if (!name.isNullOrBlank()) {
+                output = name
+            }
+            return output
         }
 }
