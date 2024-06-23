@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.alarmist.Alarmist.classes.AlarmSchedule
+import com.alarmist.Alarmist.classes.AlarmSerializer
 import com.alarmist.Alarmist.classes.CustomColors
 import com.alarmist.Alarmist.classes.DataAccess
 import com.alarmist.Alarmist.classes.DaysOfWeek
@@ -67,21 +68,38 @@ class NewAlarm : ComponentActivity() {
             var isCalendarOpen = remember { mutableStateOf(false) }
             var alarmId = 0
             val context = LocalContext.current
-            var activity = context as Activity
+            val activity = context as Activity
 
             MaterialTheme {
-                var alarmName by remember { mutableStateOf(TextFieldValue("")) }
-                var isSundayChecked by remember { mutableStateOf(false) }
-                var isMondayChecked by remember { mutableStateOf(false) }
-                var isTuesdayChecked by remember { mutableStateOf(false) }
-                var isWednesdayChecked by remember { mutableStateOf(false) }
-                var isThursdayChecked by remember { mutableStateOf(false) }
-                var isFridayChecked by remember { mutableStateOf(false) }
-                var isSaturdayChecked by remember { mutableStateOf(false) }
+                var initialAlarm = Alarm()
+                val extras = this.intent.extras
+                if (extras != null) {
+                    var alarmString = extras!!.getString("alarm")
+                    if (!alarmString.isNullOrBlank()) {
+                        initialAlarm = AlarmSerializer.deserializeAlarm(alarmString)
+                    }
+                }
+
+                var alarmName by remember { mutableStateOf(TextFieldValue(initialAlarm.name)) }
+                var isSundayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.SUNDAY)) }
+                var isMondayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.MONDAY)) }
+                var isTuesdayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.TUESDAY)) }
+                var isWednesdayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.WEDNESDAY)) }
+                var isThursdayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.THURSDAY)) }
+                var isFridayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.FRIDAY)) }
+                var isSaturdayChecked by remember {
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.FRIDAY)) }
                 val multiSelectState = rememberMultiSelectCalendarState(
-                    initialSelectedDates = emptyList()
+                    initialSelectedDates = initialAlarm.specificDays
                 )
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
+                var isEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
 
                 Scaffold(
                     topBar = {
@@ -116,7 +134,6 @@ class NewAlarm : ComponentActivity() {
                             value = alarmName,
                             onValueChange = { value ->
                                 alarmName = value
-                                println(alarmName)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -136,7 +153,7 @@ class NewAlarm : ComponentActivity() {
                             timeToGoOff = snappedTime
                         }
 
-                        Row() {
+                        Row {
                             TextButton(
                                 onClick = { isWeekPickerOpen.value = true }
                             ) {
@@ -210,6 +227,7 @@ class NewAlarm : ComponentActivity() {
                             }
 
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
+                            finish()
                         }
 
                         Button(
@@ -257,6 +275,16 @@ class NewAlarm : ComponentActivity() {
                                         MultiSelectCalendar(
                                             calendarState = multiSelectState
                                         )
+
+                                        TextButton(
+                                            onClick = {
+                                                isCalendarOpen.value = false
+                                            }
+                                        ) {
+                                            Text(
+                                                text = "Done"
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -447,6 +475,16 @@ class NewAlarm : ComponentActivity() {
                                             Text (
                                                 text = "Saturday",
                                                 color = CustomColors.TextColor
+                                            )
+                                        }
+
+                                        TextButton(
+                                            onClick = {
+                                                isWeekPickerOpen.value = false
+                                            }
+                                        ) {
+                                            Text(
+                                                text = "Done"
                                             )
                                         }
                                     }

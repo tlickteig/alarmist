@@ -19,7 +19,7 @@ class Alarm {
     var ringtones: List<String> = mutableListOf()
     var labels: HashSet<String> = hashSetOf()
     var categoryId: Int = 0
-    var time: @Serializable(with = TimeSerializer::class) LocalTime = LocalTime.now()
+    var time: @Serializable(with = TimeSerializer::class) LocalTime = LocalTime.MIDNIGHT
 
     var specificDays: List<@Serializable(with = DateSerializer::class) LocalDate> = mutableListOf()
     var daysOfWeek: HashSet<DaysOfWeek> = hashSetOf()
