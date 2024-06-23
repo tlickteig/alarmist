@@ -252,7 +252,7 @@ class NewAlarm : ComponentActivity() {
                         }
 
                         Row {
-                            if (selectedOption == "Scheduled") {
+                            if (selectedOption == AlarmSchedule.SCHEDULED.labelValue()) {
                                 TextButton(
                                     onClick = { isWeekPickerOpen.value = true }
                                 ) {
@@ -260,7 +260,7 @@ class NewAlarm : ComponentActivity() {
                                 }
                             }
 
-                            if (selectedOption == "Specific Days") {
+                            if (selectedOption == AlarmSchedule.SPECIFIC_DAYS.labelValue()) {
                                 TextButton(
                                     onClick = { isCalendarOpen.value = true }
                                 ) {
