@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.alarmist.Alarmist.classes.AlarmSerializer
 import com.alarmist.Alarmist.objects.Alarm
 import com.alarmist.Alarmist.classes.CustomFonts
 import com.alarmist.Alarmist.classes.DataAccess
@@ -153,11 +154,18 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
         var checked by remember { mutableStateOf(true) }
+        var context = LocalContext.current
         var activity = LocalContext.current as Activity
 
         Column (
             modifier = Modifier.clickable {
-                println("sfsafasdf")
+                var intent = Intent(
+                    context, NewAlarm::class.java
+                )
+
+                val alarmString = AlarmSerializer.serializeAlarm(alarm)
+                intent.putExtra("alarm", alarmString)
+                context.startActivity(intent)
             }
         ) {
             Row(

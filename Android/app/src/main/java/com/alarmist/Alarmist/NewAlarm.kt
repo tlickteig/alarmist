@@ -66,7 +66,6 @@ class NewAlarm : ComponentActivity() {
         setContent {
             var isWeekPickerOpen = remember { mutableStateOf(false) }
             var isCalendarOpen = remember { mutableStateOf(false) }
-            var alarmId = 0
             val context = LocalContext.current
             val activity = context as Activity
 
@@ -94,12 +93,12 @@ class NewAlarm : ComponentActivity() {
                 var isFridayChecked by remember {
                     mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.FRIDAY)) }
                 var isSaturdayChecked by remember {
-                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.FRIDAY)) }
+                    mutableStateOf(initialAlarm.daysOfWeek.contains(DaysOfWeek.SATURDAY)) }
                 val multiSelectState = rememberMultiSelectCalendarState(
                     initialSelectedDates = initialAlarm.specificDays
                 )
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
-                var isEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
+                var isAlarmEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
 
                 Scaffold(
                     topBar = {
@@ -147,7 +146,7 @@ class NewAlarm : ComponentActivity() {
                             selectorProperties = WheelPickerDefaults.selectorProperties(
                                 enabled = false
                             ),
-                            startTime = timeToGoOff
+                            startTime = initialAlarm.time
                         ) {
                             snappedTime ->
                             timeToGoOff = snappedTime
@@ -213,8 +212,9 @@ class NewAlarm : ComponentActivity() {
                                 selectedDays.add(DaysOfWeek.SATURDAY)
                             }
 
-                            if (alarmId == 0) {
-                                alarmId = DataAccess.returnAvailableAlarmId(activity)
+                            var newId = initialAlarm.id
+                            if (newId == 0) {
+                                newId = DataAccess.returnAvailableAlarmId(activity)
                             }
 
                             var alarm = Alarm().apply {
@@ -223,7 +223,8 @@ class NewAlarm : ComponentActivity() {
                                 scheduleMode = schedule
                                 daysOfWeek = selectedDays
                                 time = timeToGoOff
-                                id = alarmId
+                                id = newId
+                                isEnabled = isAlarmEnabled
                             }
 
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
