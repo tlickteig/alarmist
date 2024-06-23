@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
-        var checked by remember { mutableStateOf(true) }
+        var checked by remember { mutableStateOf(alarm.isEnabled) }
         var context = LocalContext.current
         var activity = LocalContext.current as Activity
 
@@ -188,6 +188,8 @@ class MainActivity : ComponentActivity() {
                         checked = checked,
                         onCheckedChange = {
                             checked = it
+                            alarm.isEnabled = checked
+                            DataAccess.saveOrUpdateAlarm(alarm, activity)
 
                             var tempAlarmList = DataAccess.returnAllAlarms(activity)
                             alarmList.clear()
