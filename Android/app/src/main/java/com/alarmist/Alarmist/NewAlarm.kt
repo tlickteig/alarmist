@@ -11,15 +11,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,6 +78,7 @@ class NewAlarm : ComponentActivity() {
             var isWeekPickerOpen = remember { mutableStateOf(false) }
             var isCalendarOpen = remember { mutableStateOf(false) }
             var isDeleteDialogOpen = remember { mutableStateOf(false) }
+            var categoryDropDownExpanded by remember { mutableStateOf(false) }
 
             val context = LocalContext.current
             val activity = context as Activity
@@ -114,6 +121,8 @@ class NewAlarm : ComponentActivity() {
 
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
                 var isAlarmEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
+
+                var selectedAlarmCategory by remember { mutableStateOf("Select Category") }
 
                 Scaffold(
                     topBar = {
@@ -265,6 +274,53 @@ class NewAlarm : ComponentActivity() {
                                     onClick = { isCalendarOpen.value = true }
                                 ) {
                                     Text("Select Dates...", color = CustomColors.TextButtonColor)
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(32.dp)
+                        ) {
+                            ExposedDropdownMenuBox(
+                                expanded = categoryDropDownExpanded,
+                                onExpandedChange = {
+                                    categoryDropDownExpanded = !categoryDropDownExpanded
+                                }
+                            ) {
+                                TextField(
+                                    value = selectedAlarmCategory,
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.
+                                        TrailingIcon(expanded = categoryDropDownExpanded) },
+                                    modifier = Modifier.menuAnchor()
+                                )
+
+                                ExposedDropdownMenu(
+                                    expanded = categoryDropDownExpanded,
+                                    onDismissRequest = { categoryDropDownExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(text = "Category 1") },
+                                        onClick = {
+                                            selectedAlarmCategory = "Category 1"
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { Text(text = "Category 2") },
+                                        onClick = {
+                                            selectedAlarmCategory = "Category 2"
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(text = "Category 2")
+                                        },
+                                        onClick = { }
+                                    )
                                 }
                             }
                         }
