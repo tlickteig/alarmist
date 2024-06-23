@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +67,8 @@ class NewAlarm : ComponentActivity() {
         setContent {
             var isWeekPickerOpen = remember { mutableStateOf(false) }
             var isCalendarOpen = remember { mutableStateOf(false) }
+            var isDeleteDialogOpen = remember { mutableStateOf(false) }
+
             val context = LocalContext.current
             val activity = context as Activity
 
@@ -107,7 +110,12 @@ class NewAlarm : ComponentActivity() {
                                 containerColor = CustomColors.TitleBarColor
                             ),
                             title = {
-                                Text("Create new Alarm")
+                                if (initialAlarm.id == 0) {
+                                    Text("Create new Alarm")
+                                }
+                                else {
+                                    Text("Edit Alarm")
+                                }
                             },
                             navigationIcon = {
                                 IconButton(
@@ -237,6 +245,65 @@ class NewAlarm : ComponentActivity() {
                             }
                         ) {
                             Text("Save Alarm")
+                        }
+
+                        if (initialAlarm.id != 0) {
+                            FilledTonalButton(
+                                onClick = {
+                                    isDeleteDialogOpen.value = true
+                                }
+                            ) {
+                                Text("Delete Alarm")
+                            }
+                        }
+                    }
+                }
+
+                if (isDeleteDialogOpen.value) {
+                    Dialog(
+                        onDismissRequest = { isDeleteDialogOpen.value = false }
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color.Transparent
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(top = 15.dp)
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = CustomColors.DialogBackgroundColor,
+                                            shape = RoundedCornerShape(percent = 10)
+                                        )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp)
+                                    ) {
+                                        Text("Are you sure?")
+                                        Button(
+                                            onClick = {
+                                                DataAccess.deleteAlarm(activity, initialAlarm.id)
+                                                finish()
+                                            }
+                                        ) {
+                                            Text("Yes")
+                                        }
+
+                                        FilledTonalButton(
+                                            onClick = {
+                                                isDeleteDialogOpen.value = false
+                                            }
+                                        ) {
+                                            Text("No")
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

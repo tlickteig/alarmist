@@ -57,6 +57,17 @@ class DataAccess {
 
             return maxAlarmId + 1
         }
+
+        fun deleteAlarm(activity: Activity, alarmId: Int) {
+            val sharedPref = activity?.getSharedPreferences(
+                Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE) ?: return
+            val key = "${Constants.ALARM_PREFIX_FOR_SHARED_PREFERENCES}_$alarmId"
+
+            with (sharedPref.edit()) {
+                remove(key)
+                apply()
+            }
+        }
     }
 }
 
