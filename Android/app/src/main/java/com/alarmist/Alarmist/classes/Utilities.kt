@@ -68,6 +68,22 @@ class DataAccess {
                 apply()
             }
         }
+
+        fun returnAllCategories(activity: Activity): List<String> {
+            val alarms = returnAllAlarms(activity)
+            var output: List<String> = mutableListOf()
+
+            for (alarm in alarms) {
+                var category = alarm.category
+                if (!category.isNullOrBlank()) {
+                    if (!output.contains(category)) {
+                        output += listOf(category)
+                    }
+                }
+            }
+
+            return output
+        }
     }
 }
 

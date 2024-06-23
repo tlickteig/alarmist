@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -40,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -78,10 +81,12 @@ class NewAlarm : ComponentActivity() {
             var isWeekPickerOpen = remember { mutableStateOf(false) }
             var isCalendarOpen = remember { mutableStateOf(false) }
             var isDeleteDialogOpen = remember { mutableStateOf(false) }
+            var isNewCategoryDialogOpen = remember { mutableStateOf(false) }
             var categoryDropDownExpanded by remember { mutableStateOf(false) }
 
             val context = LocalContext.current
             val activity = context as Activity
+            var availableCategories = remember { mutableStateListOf<String>() }
 
             MaterialTheme {
                 var initialAlarm = Alarm()
@@ -91,6 +96,12 @@ class NewAlarm : ComponentActivity() {
                     if (!alarmString.isNullOrBlank()) {
                         initialAlarm = AlarmSerializer.deserializeAlarm(alarmString)
                     }
+                }
+
+                var tempCategoryList = DataAccess.returnAllCategories(activity)
+                availableCategories.clear()
+                for (category in tempCategoryList) {
+                    availableCategories.add(category)
                 }
 
                 var alarmName by remember { mutableStateOf(TextFieldValue(initialAlarm.name)) }
@@ -121,8 +132,7 @@ class NewAlarm : ComponentActivity() {
 
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
                 var isAlarmEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
-
-                var selectedAlarmCategory by remember { mutableStateOf("Select Category") }
+                var selectedAlarmCategory by remember { mutableStateOf(initialAlarm.category) }
 
                 Scaffold(
                     topBar = {
@@ -155,7 +165,8 @@ class NewAlarm : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Column(
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier.padding(innerPadding)
+                            .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         TextField(
@@ -230,6 +241,7 @@ class NewAlarm : ComponentActivity() {
                                 time = timeToGoOff
                                 id = newId
                                 isEnabled = isAlarmEnabled
+                                category = selectedAlarmCategory
                             }
 
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
@@ -294,32 +306,45 @@ class NewAlarm : ComponentActivity() {
                                     trailingIcon = {
                                         ExposedDropdownMenuDefaults.
                                         TrailingIcon(expanded = categoryDropDownExpanded) },
-                                    modifier = Modifier.menuAnchor()
+                                    modifier = Modifier.menuAnchor(),
+                                    label = {
+                                        Text("Select Category")
+                                    }
                                 )
 
                                 ExposedDropdownMenu(
                                     expanded = categoryDropDownExpanded,
                                     onDismissRequest = { categoryDropDownExpanded = false }
                                 ) {
-                                    DropdownMenuItem(
-                                        text = { Text(text = "Category 1") },
-                                        onClick = {
-                                            selectedAlarmCategory = "Category 1"
-                                        }
-                                    )
+                                    availableCategories.forEach { category ->
+                                        DropdownMenuItem(
+                                            text = { Text(text = category) },
+                                            onClick = {
+                                                selectedAlarmCategory = category
+                                            }
+                                        )
+                                    }
 
                                     DropdownMenuItem(
-                                        text = { Text(text = "Category 2") },
+                                        text = { Text(text = "Uncategorized") },
                                         onClick = {
-                                            selectedAlarmCategory = "Category 2"
+                                            selectedAlarmCategory = ""
                                         }
                                     )
 
                                     DropdownMenuItem(
                                         text = {
-                                            Text(text = "Category 2")
+                                            TextButton(
+                                                onClick = {
+                                                    isNewCategoryDialogOpen.value = true
+                                                }
+                                            ) {
+                                                Text("New category...")
+                                            }
                                         },
-                                        onClick = { }
+                                        onClick = {
+                                            isNewCategoryDialogOpen.value = true
+                                        }
                                     )
                                 }
                             }
@@ -340,6 +365,57 @@ class NewAlarm : ComponentActivity() {
                                 }
                             ) {
                                 Text("Delete Alarm")
+                            }
+                        }
+                    }
+                }
+
+                if (isNewCategoryDialogOpen.value) {
+                    Dialog(
+                        onDismissRequest = { isNewCategoryDialogOpen.value = false }
+                    ) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color.Transparent
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(top = 15.dp)
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = CustomColors.DialogBackgroundColor,
+                                            shape = RoundedCornerShape(percent = 10)
+                                        )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp)
+                                    ) {
+                                        var tempCategory by remember { mutableStateOf("") }
+                                        TextField(
+                                            value = tempCategory,
+                                            onValueChange = { value ->
+                                                tempCategory = value
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(10.dp)
+                                        )
+
+                                        Button(
+                                            onClick = {
+                                                selectedAlarmCategory = tempCategory
+                                                isNewCategoryDialogOpen.value = false
+                                            }
+                                        ) {
+                                            Text("Save")
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

@@ -18,7 +18,7 @@ class Alarm {
     var isEnabled: Boolean = false
     var ringtones: List<String> = mutableListOf()
     var labels: HashSet<String> = hashSetOf()
-    var categoryId: Int = 0
+    var category: String = ""
     var time: @Serializable(with = TimeSerializer::class) LocalTime = LocalTime.MIDNIGHT
 
     var specificDays: List<@Serializable(with = DateSerializer::class) LocalDate> = mutableListOf()
