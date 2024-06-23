@@ -75,3 +75,29 @@ class Utilities {
     companion object {
     }
 }
+
+class ExtensionMethods {
+    companion object {
+        fun AlarmSchedule.labelValue(): String {
+            var output = "One Time"
+            if (this == AlarmSchedule.SCHEDULED) {
+                output = "Scheduled"
+            } else if (this == AlarmSchedule.SPECIFIC_DAYS) {
+                output = "Specific Days"
+            }
+
+            return output
+        }
+
+        fun String.alarmScheduleEnumValue(): AlarmSchedule {
+            var output = AlarmSchedule.ONE_TIME
+            if (this == "Scheduled") {
+                output = AlarmSchedule.SCHEDULED
+            } else if (this == "Specific Days") {
+                output = AlarmSchedule.SPECIFIC_DAYS
+            }
+
+            return output
+        }
+    }
+}

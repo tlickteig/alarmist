@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +24,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,6 +52,8 @@ import com.alarmist.Alarmist.classes.AlarmSerializer
 import com.alarmist.Alarmist.classes.CustomColors
 import com.alarmist.Alarmist.classes.DataAccess
 import com.alarmist.Alarmist.classes.DaysOfWeek
+import com.alarmist.Alarmist.classes.ExtensionMethods.Companion.alarmScheduleEnumValue
+import com.alarmist.Alarmist.classes.ExtensionMethods.Companion.labelValue
 import com.alarmist.Alarmist.objects.Alarm
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
@@ -100,6 +104,14 @@ class NewAlarm : ComponentActivity() {
                 val multiSelectState = rememberMultiSelectCalendarState(
                     initialSelectedDates = initialAlarm.specificDays
                 )
+
+                val scheduleOptions = listOf(
+                    AlarmSchedule.ONE_TIME.labelValue(),
+                    AlarmSchedule.SCHEDULED.labelValue(),
+                    AlarmSchedule.SPECIFIC_DAYS.labelValue())
+                val (selectedOption, onOptionSelected) = remember { mutableStateOf(
+                    scheduleOptions[scheduleOptions.indexOf(initialAlarm.scheduleMode.labelValue())] ) }
+
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
                 var isAlarmEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
 
@@ -160,37 +172,9 @@ class NewAlarm : ComponentActivity() {
                             timeToGoOff = snappedTime
                         }
 
-                        Row {
-                            TextButton(
-                                onClick = { isWeekPickerOpen.value = true }
-                            ) {
-                                Text("Select Days...", color = CustomColors.TextButtonColor)
-                            }
-
-                            IconButton(
-                                onClick = { isCalendarOpen.value = true }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.CalendarMonth,
-                                    contentDescription = "Choose dates",
-                                    tint = CustomColors.TextButtonColor
-                                )
-                            }
-                        }
-
                         fun processNewAlarm() {
-                            var schedule = AlarmSchedule.ONE_TIME
+
                             var selectedDates = multiSelectState.selectedState.selected
-
-                            if (isSundayChecked || isMondayChecked || isTuesdayChecked
-                                || isWednesdayChecked || isThursdayChecked || isFridayChecked
-                                || isSaturdayChecked) {
-
-                                schedule = AlarmSchedule.SCHEDULED
-                            } else if (selectedDates.isNotEmpty()) {
-                                schedule = AlarmSchedule.SPECIFIC_DAYS
-                            }
-
                             val selectedDays: HashSet<DaysOfWeek> = hashSetOf()
                             if (isSundayChecked) {
                                 selectedDays.add(DaysOfWeek.SUNDAY)
@@ -227,9 +211,13 @@ class NewAlarm : ComponentActivity() {
 
                             var alarm = Alarm().apply {
                                 name = alarmName.text
-                                specificDays = selectedDates
-                                scheduleMode = schedule
-                                daysOfWeek = selectedDays
+                                if (selectedOption.alarmScheduleEnumValue() == AlarmSchedule.SPECIFIC_DAYS) {
+                                    specificDays = selectedDates
+                                }
+                                scheduleMode = selectedOption.alarmScheduleEnumValue()
+                                if (selectedOption.alarmScheduleEnumValue() == AlarmSchedule.SCHEDULED) {
+                                    daysOfWeek = selectedDays
+                                }
                                 time = timeToGoOff
                                 id = newId
                                 isEnabled = isAlarmEnabled
@@ -237,6 +225,48 @@ class NewAlarm : ComponentActivity() {
 
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
                             finish()
+                        }
+
+                        Column {
+                            scheduleOptions.forEach { text ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .selectable(
+                                            selected = (text == selectedOption),
+                                            onClick = {
+                                                onOptionSelected(text)
+                                            }
+                                        )
+                                ) {
+                                    RadioButton(
+                                        selected = (text == selectedOption),
+                                        onClick = { onOptionSelected(text) }
+                                    )
+
+                                    Text(
+                                        text = text,
+                                        modifier = Modifier.padding(start = 16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Row {
+                            if (selectedOption == "Scheduled") {
+                                TextButton(
+                                    onClick = { isWeekPickerOpen.value = true }
+                                ) {
+                                    Text("Select Days...", color = CustomColors.TextButtonColor)
+                                }
+                            }
+
+                            if (selectedOption == "Specific Days") {
+                                TextButton(
+                                    onClick = { isCalendarOpen.value = true }
+                                ) {
+                                    Text("Select Dates...", color = CustomColors.TextButtonColor)
+                                }
+                            }
                         }
 
                         Button(
