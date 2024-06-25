@@ -389,7 +389,8 @@ class NewAlarm : ComponentActivity() {
 
                         TextButton(
                             onClick = {
-                                if (!alarmLabelTextFieldValue.isNullOrBlank()) {
+                                if (!alarmLabelTextFieldValue.isNullOrBlank() &&
+                                    !alarmLabels.contains(alarmLabelTextFieldValue)) {
                                     alarmLabels.add(alarmLabelTextFieldValue)
                                 }
                             }
