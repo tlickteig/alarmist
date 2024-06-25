@@ -143,6 +143,12 @@ class MainActivity : ComponentActivity() {
                             for (alarm in tempAlarmList) {
                                 alarmList.add(alarm)
                             }
+
+                            scope.launch {
+                                drawerState.apply {
+                                    close()
+                                }
+                            }
                         }
                         else -> { /* Don't do anything */ }
                     }
