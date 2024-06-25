@@ -55,6 +55,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.alarmist.Alarmist.classes.AlarmSchedule
 import com.alarmist.Alarmist.classes.AlarmSerializer
@@ -83,6 +84,7 @@ class NewAlarm : ComponentActivity() {
             var isDeleteDialogOpen = remember { mutableStateOf(false) }
             var isNewCategoryDialogOpen = remember { mutableStateOf(false) }
             var categoryDropDownExpanded by remember { mutableStateOf(false) }
+            var alarmLabelTextFieldValue by remember { mutableStateOf("") }
 
             val context = LocalContext.current
             val activity = context as Activity
@@ -133,6 +135,11 @@ class NewAlarm : ComponentActivity() {
                 var timeToGoOff by remember { mutableStateOf(LocalTime.MIDNIGHT) }
                 var isAlarmEnabled by remember { mutableStateOf(initialAlarm.isEnabled) }
                 var selectedAlarmCategory by remember { mutableStateOf(initialAlarm.category) }
+                var alarmLabels = remember { mutableStateListOf<String>() }
+
+                for (alarm in initialAlarm.labels) {
+                    alarmLabels.add(alarm)
+                }
 
                 Scaffold(
                     topBar = {
@@ -165,7 +172,8 @@ class NewAlarm : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Column(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier
+                            .padding(innerPadding)
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -229,6 +237,13 @@ class NewAlarm : ComponentActivity() {
                                 newId = DataAccess.returnAvailableAlarmId(activity)
                             }
 
+                            var tempLabels = HashSet<String>()
+                            for (label in alarmLabels) {
+                                if (!tempLabels.contains(label)) {
+                                    tempLabels.add(label)
+                                }
+                            }
+
                             var alarm = Alarm().apply {
                                 name = alarmName.text
                                 if (selectedOption.alarmScheduleEnumValue() == AlarmSchedule.SPECIFIC_DAYS) {
@@ -242,6 +257,7 @@ class NewAlarm : ComponentActivity() {
                                 id = newId
                                 isEnabled = isAlarmEnabled
                                 category = selectedAlarmCategory
+                                labels = tempLabels
                             }
 
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
@@ -251,7 +267,8 @@ class NewAlarm : ComponentActivity() {
                         Column {
                             scheduleOptions.forEach { text ->
                                 Row(
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                         .selectable(
                                             selected = (text == selectedOption),
                                             onClick = {
@@ -291,7 +308,9 @@ class NewAlarm : ComponentActivity() {
                         }
 
                         Box(
-                            modifier = Modifier.fillMaxWidth().padding(32.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp)
                         ) {
                             ExposedDropdownMenuBox(
                                 expanded = categoryDropDownExpanded,
@@ -365,6 +384,54 @@ class NewAlarm : ComponentActivity() {
                                 }
                             ) {
                                 Text("Delete Alarm")
+                            }
+                        }
+
+                        TextButton(
+                            onClick = {
+                                if (!alarmLabelTextFieldValue.isNullOrBlank()) {
+                                    alarmLabels.add(alarmLabelTextFieldValue)
+                                }
+                            }
+                        ) {
+                            Text("Add label")
+                        }
+
+                        TextField(
+                            value = alarmLabelTextFieldValue,
+                            onValueChange = { value ->
+                                alarmLabelTextFieldValue = value
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        )
+
+                        alarmLabels.forEach { alarmLabel ->
+                            Row (
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = alarmLabel,
+                                    fontSize = 30.sp
+                                )
+
+                                Box(
+                                    contentAlignment = Alignment.CenterEnd,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    TextButton(
+                                        onClick = {
+                                            alarmLabels.remove(alarmLabel)
+                                        }
+                                    ) {
+                                        Text("X")
+                                    }
+                                }
                             }
                         }
                     }
