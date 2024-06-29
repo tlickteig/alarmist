@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit
 
 class DataAccess {
     companion object {
-        fun returnAllAlarms(activity: Activity): List<Alarm> {
+        fun returnAllAlarms(context: Context): List<Alarm> {
 
             var output: List<Alarm> = mutableListOf();
-            val sharedPref = activity?.getSharedPreferences(
+            val sharedPref = context?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE
             )
             val sharedPreferenceKeys = sharedPref!!.all.map { it.key }
@@ -32,9 +32,9 @@ class DataAccess {
             return output;
         }
 
-        fun saveOrUpdateAlarm(alarm: Alarm, activity: Activity) {
+        fun saveOrUpdateAlarm(alarm: Alarm, context: Context) {
 
-            val sharedPref = activity?.getSharedPreferences(
+            val sharedPref = context?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE) ?: return
             val serializedAlarm = AlarmSerializer.serializeAlarm(alarm);
             var id = alarm.id
@@ -46,9 +46,9 @@ class DataAccess {
             }
         }
 
-        fun returnAvailableAlarmId(activity: Activity): Int {
+        fun returnAvailableAlarmId(context: Context): Int {
 
-            val sharedPref = activity?.getSharedPreferences(
+            val sharedPref = context?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE)
             val sharedPreferenceKeys = sharedPref!!.all.map { it.key }
             var maxAlarmId = 0
@@ -65,8 +65,8 @@ class DataAccess {
             return maxAlarmId + 1
         }
 
-        fun deleteAlarm(activity: Activity, alarmId: Int) {
-            val sharedPref = activity?.getSharedPreferences(
+        fun deleteAlarm(context: Context, alarmId: Int) {
+            val sharedPref = context?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE) ?: return
             val key = "${Constants.ALARM_PREFIX_FOR_SHARED_PREFERENCES}_$alarmId"
 
@@ -76,8 +76,8 @@ class DataAccess {
             }
         }
 
-        fun returnAllCategories(activity: Activity): List<String> {
-            val alarms = returnAllAlarms(activity)
+        fun returnAllCategories(context: Context): List<String> {
+            val alarms = returnAllAlarms(context)
             var output: List<String> = mutableListOf()
 
             for (alarm in alarms) {
@@ -96,9 +96,9 @@ class DataAccess {
 
 class Utilities {
     companion object {
-        private fun areAnyAlarmsEnabled(activity: Activity): Boolean {
+        fun areAnyAlarmsEnabled(context: Context): Boolean {
             var output = false
-            var allAlarms = DataAccess.returnAllAlarms(activity)
+            var allAlarms = DataAccess.returnAllAlarms(context)
             for (alarm in allAlarms) {
                 if (alarm.isEnabled) {
                     output = true
@@ -108,8 +108,8 @@ class Utilities {
             return output
         }
 
-        fun setBackgroundThread(context: Context, activity: Activity) {
-            if (areAnyAlarmsEnabled(activity)) {
+        fun setBackgroundThread(context: Context) {
+            if (areAnyAlarmsEnabled(context)) {
                 if (!isBackgroundThreadAlreadyRunning(context)) {
                     var serviceIntent = Intent(context, BackgroundProcessor::class.java)
                     startForegroundService(context, serviceIntent)
@@ -117,7 +117,7 @@ class Utilities {
             }
         }
 
-        private fun isBackgroundThreadAlreadyRunning(context: Context): Boolean {
+        fun isBackgroundThreadAlreadyRunning(context: Context): Boolean {
             var activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
                 if (BackgroundProcessor::class.qualifiedName.equals(service.service.className)) {
