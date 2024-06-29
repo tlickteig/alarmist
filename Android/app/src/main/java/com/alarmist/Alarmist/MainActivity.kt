@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                 })
 
                             TextButton(onClick = {
-                                var test = DataAccess.returnAvailableAlarmId(activity)
+                                Utilities.setBackgroundThread(context, activity)
                             }) {
                                 Text("Test")
                             }
@@ -135,6 +135,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 OnLifecycleEvent { owner, event ->
+                    Utilities.setBackgroundThread(context, activity)
                     when (event) {
                         Lifecycle.Event.ON_RESUME -> {
                             var tempAlarmList = DataAccess.returnAllAlarms(activity)

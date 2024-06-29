@@ -1,8 +1,15 @@
 package com.alarmist.Alarmist.classes
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startForegroundService
 import com.alarmist.Alarmist.objects.Alarm
+import java.util.concurrent.TimeUnit
 
 class DataAccess {
     companion object {
@@ -89,6 +96,37 @@ class DataAccess {
 
 class Utilities {
     companion object {
+        private fun areAnyAlarmsEnabled(activity: Activity): Boolean {
+            var output = false
+            var allAlarms = DataAccess.returnAllAlarms(activity)
+            for (alarm in allAlarms) {
+                if (alarm.isEnabled) {
+                    output = true
+                }
+            }
+
+            return output
+        }
+
+        fun setBackgroundThread(context: Context, activity: Activity) {
+            if (areAnyAlarmsEnabled(activity)) {
+                if (!isBackgroundThreadAlreadyRunning(context)) {
+                    var serviceIntent = Intent(context, BackgroundProcessor::class.java)
+                    startForegroundService(context, serviceIntent)
+                }
+            }
+        }
+
+        private fun isBackgroundThreadAlreadyRunning(context: Context): Boolean {
+            var activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
+                if (BackgroundProcessor::class.qualifiedName.equals(service.service.className)) {
+                    return true
+                }
+            }
+
+            return false
+        }
     }
 }
 
