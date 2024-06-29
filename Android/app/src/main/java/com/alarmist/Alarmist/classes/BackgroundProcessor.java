@@ -13,6 +13,9 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class BackgroundProcessor extends Service {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -20,21 +23,13 @@ public class BackgroundProcessor extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         try {
-            new Thread(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            while (true) {
-                                Log.e("Service", "Service is running!");
-                                try {
-                                    Thread.sleep(2000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-            ).start();
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mainBackgroundThread();
+                }
+            }, 0, Constants.BACKGROUND_THREAD_INTERVAL_MS);
 
             final String channelId = "Alarmist Service";
             NotificationChannel channel = new NotificationChannel(
@@ -60,5 +55,9 @@ public class BackgroundProcessor extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void mainBackgroundThread() {
+        Log.e("Service", "Service is running!");
     }
 }
