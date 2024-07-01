@@ -96,7 +96,7 @@ class DataAccess {
 
 class Utilities {
     companion object {
-        fun areAnyAlarmsEnabled(context: Context): Boolean {
+        private fun areAnyAlarmsEnabled(context: Context): Boolean {
             var output = false
             var allAlarms = DataAccess.returnAllAlarms(context)
             for (alarm in allAlarms) {
@@ -117,7 +117,7 @@ class Utilities {
             }
         }
 
-        fun isBackgroundThreadAlreadyRunning(context: Context): Boolean {
+        private fun isBackgroundThreadAlreadyRunning(context: Context): Boolean {
             var activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
                 if (BackgroundProcessor::class.qualifiedName.equals(service.service.className)) {

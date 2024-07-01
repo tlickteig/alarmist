@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val alarmList = remember { mutableStateListOf<Alarm>() }
+                Utilities.setBackgroundThread(context)
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -136,15 +137,16 @@ class MainActivity : ComponentActivity() {
 
                 OnLifecycleEvent { owner, event ->
                     Utilities.setBackgroundThread(context)
+
+                    var tempAlarmList = DataAccess.returnAllAlarms(activity)
+                    alarmList.clear()
+
+                    for (alarm in tempAlarmList) {
+                        alarmList.add(alarm)
+                    }
+
                     when (event) {
                         Lifecycle.Event.ON_RESUME -> {
-                            var tempAlarmList = DataAccess.returnAllAlarms(activity)
-                            alarmList.clear()
-
-                            for (alarm in tempAlarmList) {
-                                alarmList.add(alarm)
-                            }
-
                             scope.launch {
                                 drawerState.apply {
                                     close()
@@ -197,6 +199,7 @@ class MainActivity : ComponentActivity() {
                             checked = it
                             alarm.isEnabled = checked
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
+                            Utilities.setBackgroundThread(context)
 
                             var tempAlarmList = DataAccess.returnAllAlarms(activity)
                             alarmList.clear()

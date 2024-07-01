@@ -24,6 +24,30 @@ class Alarm {
     var specificDays: List<@Serializable(with = DateSerializer::class) LocalDate> = mutableListOf()
     var daysOfWeek: HashSet<DaysOfWeek> = hashSetOf()
 
+    var daysOfWeekString: List<String> = mutableListOf()
+        get() {
+            var output: List<String> = mutableListOf()
+            for (dayEnum in daysOfWeek) {
+                if (dayEnum == DaysOfWeek.SUNDAY) {
+                    output += "Sunday"
+                } else if (dayEnum == DaysOfWeek.MONDAY) {
+                    output += "Monday"
+                } else if (dayEnum == DaysOfWeek.TUESDAY) {
+                    output += "Tuesday"
+                } else if (dayEnum == DaysOfWeek.WEDNESDAY) {
+                    output += "Wednesday"
+                } else if (dayEnum == DaysOfWeek.THURSDAY) {
+                    output += "Thursday"
+                } else if (dayEnum == DaysOfWeek.FRIDAY) {
+                    output += "Friday"
+                } else if (dayEnum == DaysOfWeek.SATURDAY) {
+                    output += "Saturday"
+                }
+            }
+
+            return output
+        }
+
     var subText: String = ""
         get() {
             return "Hello World!"

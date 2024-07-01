@@ -8,7 +8,8 @@ class Constants {
         const val SHARED_PREFERENCES_FOR_ALL_CATEGORIES = "categoryListSharedPreferences"
         const val CATEGORY_PREFIX_FOR_SHARED_PREFERENCES = "sharedPreferencesCategory_"
 
-        const val BACKGROUND_THREAD_INTERVAL_MS = 5000
+        // Must be 60 seconds to fire alarms at the proper interval
+        const val BACKGROUND_THREAD_INTERVAL_MS = 60_000
     }
 }
 
