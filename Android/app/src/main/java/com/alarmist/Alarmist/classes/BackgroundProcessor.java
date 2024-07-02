@@ -65,13 +65,15 @@ public class BackgroundProcessor extends Service {
 
     private void startForegroundService() {
         if (Build.VERSION.SDK_INT >= 26) {
-            final String channelId = "Alarmist Service";
             NotificationChannel channel = new NotificationChannel(
-                    channelId, channelId, NotificationManager.IMPORTANCE_LOW
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    NotificationManager.IMPORTANCE_LOW
             );
 
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
-            Notification.Builder notification = new Notification.Builder(this, channelId).setContentText("Alarms are set");
+            Notification.Builder notification = new Notification.Builder(this,
+                    Constants.NOTIFICATION_CHANNEL_ID).setContentText("Alarms are set");
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 startForeground(1001, notification.build());
@@ -104,18 +106,21 @@ public class BackgroundProcessor extends Service {
     private Boolean shouldAlarmBeGoingOff(Alarm alarm) {
 
         Boolean output = false;
+        LocalTime timeToGoOff = alarm.getTime();
+        timeToGoOff = timeToGoOff.plusMinutes(alarm.getSnoozeMinutes());
+
         if (alarm.isEnabled()) {
             LocalDateTime localDateTime = LocalDateTime.now();
             if (alarm.getScheduleMode() == AlarmSchedule.ONE_TIME) {
-                if (alarm.getTime().getHour() == localDateTime.getHour() &&
-                        alarm.getTime().getMinute() == localDateTime.getMinute()) {
+                if (timeToGoOff.getHour() == localDateTime.getHour() &&
+                        timeToGoOff.getMinute() == localDateTime.getMinute()) {
                     output = true;
                 }
             } else if (alarm.getScheduleMode() == AlarmSchedule.SCHEDULED) {
                 if (alarm.getDaysOfWeekString().contains(
                         localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.US))) {
-                    if (alarm.getTime().getHour() == localDateTime.getHour() &&
-                            alarm.getTime().getMinute() == localDateTime.getMinute()) {
+                    if (timeToGoOff.getHour() == localDateTime.getHour() &&
+                            timeToGoOff.getMinute() == localDateTime.getMinute()) {
                         output = true;
                     }
 
@@ -123,8 +128,8 @@ public class BackgroundProcessor extends Service {
             } else if (alarm.getScheduleMode() == AlarmSchedule.SPECIFIC_DAYS) {
                 for (LocalDate alarmDate : alarm.getSpecificDays()) {
                     if (alarmDate.getDayOfYear() == localDateTime.getDayOfYear()) {
-                        if (alarm.getTime().getHour() == localDateTime.getHour() &&
-                                alarm.getTime().getMinute() == localDateTime.getMinute()) {
+                        if (timeToGoOff.getHour() == localDateTime.getHour() &&
+                                timeToGoOff.getMinute() == localDateTime.getMinute()) {
                             output = true;
                         }
                     }

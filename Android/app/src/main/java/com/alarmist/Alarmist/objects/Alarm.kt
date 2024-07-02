@@ -20,6 +20,7 @@ class Alarm {
     var labels: HashSet<String> = hashSetOf()
     var category: String = ""
     var time: @Serializable(with = TimeSerializer::class) LocalTime = LocalTime.MIDNIGHT
+    var snoozeMinutes: Int = 0
 
     var specificDays: List<@Serializable(with = DateSerializer::class) LocalDate> = mutableListOf()
     var daysOfWeek: HashSet<DaysOfWeek> = hashSetOf()
