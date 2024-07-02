@@ -92,7 +92,7 @@ public class BackgroundProcessor extends Service {
         for (Alarm alarm : alarms) {
             if (alarm.isEnabled()) {
                 if (shouldAlarmBeGoingOff(alarm)) {
-                    Log.e("Service", "Alarm " + alarm.getId() + " is going off!");
+                    Utilities.Companion.setAlarmGoingOff(alarm, context);
 
                     if (alarm.getScheduleMode() == AlarmSchedule.ONE_TIME) {
                         alarm.setEnabled(false);

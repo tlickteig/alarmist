@@ -3,12 +3,20 @@ package com.alarmist.Alarmist.classes
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startForegroundService
+import com.alarmist.Alarmist.AlarmGoingOff
+import com.alarmist.Alarmist.MainActivity
+import com.alarmist.Alarmist.NewAlarm
+import com.alarmist.Alarmist.R
 import com.alarmist.Alarmist.objects.Alarm
 import java.util.concurrent.TimeUnit
 
@@ -127,6 +135,51 @@ class Utilities {
             }
 
             return false
+        }
+
+        fun setAlarmGoingOff(alarm: Alarm, context: Context) {
+            try {
+                var intent = Intent(
+                    context, AlarmGoingOff::class.java
+                )
+
+                val alarmString = AlarmSerializer.serializeAlarm(alarm)
+                intent.putExtra("alarmString", alarmString)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                val notificationManager = NotificationManagerCompat.from(context)
+                val notification = createAlarmGoingOffNotification(intent, context, alarm)
+                notificationManager.notify(Constants.NOTIFICATION_ID, notification)
+            }
+            catch (exception: Exception) {
+                Log.e("Alarmist", "sfdsadf")
+            }
+        }
+
+        // https://hackernoon.com/ditch-the-notification-and-show-an-activity-on-your-android-lock-screen-instead
+        private fun createAlarmGoingOffNotification(fullScreenIntent: Intent, context: Context,
+                                                    alarm: Alarm): Notification {
+
+            var contentIntent = Intent(context, MainActivity::class.java)
+            val contentPendingIntent = PendingIntent.getActivity(context, 0,
+                contentIntent, PendingIntent.FLAG_IMMUTABLE)
+            val fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
+                fullScreenIntent, PendingIntent.FLAG_IMMUTABLE)
+
+            var contentTitle = "Alarm is going off"
+            if (!alarm.name.isNullOrBlank()) {
+                contentTitle = alarm.name
+            }
+
+            return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
+                .setContentTitle(contentTitle)
+                .setAutoCancel(true)
+                .setContentIntent(contentPendingIntent)
+                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .build()
         }
     }
 }

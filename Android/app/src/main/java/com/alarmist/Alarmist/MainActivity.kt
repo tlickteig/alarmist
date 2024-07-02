@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                                 })
 
                             TextButton(onClick = {
-                                Utilities.setBackgroundThread(context)
+                                Utilities.setAlarmGoingOff(alarmList[0], context)
                             }) {
                                 Text("Test")
                             }
