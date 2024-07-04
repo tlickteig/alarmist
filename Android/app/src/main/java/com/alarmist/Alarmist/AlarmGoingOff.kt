@@ -7,12 +7,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role.Companion.Button
+import com.alarmist.Alarmist.classes.AlarmSchedule
 import com.alarmist.Alarmist.classes.AlarmSerializer
+import com.alarmist.Alarmist.classes.DataAccess
+import com.alarmist.Alarmist.classes.Utilities
 
 class AlarmGoingOff : ComponentActivity() {
 
@@ -25,11 +31,26 @@ class AlarmGoingOff : ComponentActivity() {
         var alarm = AlarmSerializer.deserializeAlarm(alarmString!!)
 
         setContent {
+
+            val context = LocalContext.current
             MaterialTheme {
                 Scaffold { innerPadding ->
                     Column (
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        Button(
+                            onClick = {
+                                Utilities.stopPlayingRingtone()
+
+                                if (alarm.scheduleMode == AlarmSchedule.ONE_TIME) {
+                                    alarm.isEnabled = false
+                                    DataAccess.saveOrUpdateAlarm(alarm, context)
+                                }
+                            }
+                        ) {
+                            Text("Stop")
+                        }
+
                         Text("Alarm is going off")
                     }
                 }

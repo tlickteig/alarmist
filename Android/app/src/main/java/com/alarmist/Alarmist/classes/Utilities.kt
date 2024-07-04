@@ -1,24 +1,28 @@
 package com.alarmist.Alarmist.classes
 
-import android.app.Activity
+import android.Manifest
 import android.app.ActivityManager
-import android.app.AlarmManager
 import android.app.Notification
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.Ringtone
+import android.media.RingtoneManager
+import android.os.Build
 import android.util.Log
+import android.window.SplashScreen
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.ContextCompat.startForegroundService
 import com.alarmist.Alarmist.AlarmGoingOff
 import com.alarmist.Alarmist.MainActivity
-import com.alarmist.Alarmist.NewAlarm
 import com.alarmist.Alarmist.R
 import com.alarmist.Alarmist.objects.Alarm
-import java.util.concurrent.TimeUnit
+
 
 class DataAccess {
     companion object {
@@ -105,6 +109,8 @@ class DataAccess {
 
 class Utilities {
     companion object {
+        private var ringtone: Ringtone? = null
+
         private fun areAnyAlarmsEnabled(context: Context): Boolean {
             var output = false
             var allAlarms = DataAccess.returnAllAlarms(context)
@@ -145,11 +151,19 @@ class Utilities {
 
                 val alarmString = AlarmSerializer.serializeAlarm(alarm)
                 intent.putExtra("alarmString", alarmString)
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                val notificationManager = NotificationManagerCompat.from(context)
                 val notification = createAlarmGoingOffNotification(intent, context, alarm)
-                notificationManager.notify(Constants.NOTIFICATION_ID, notification)
+
+                with (NotificationManagerCompat.from(context)) {
+                    if (ActivityCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notify(Constants.NOTIFICATION_ID, notification)
+                    }
+                }
+
+                startPlayingRingtone(context)
             }
             catch (exception: Exception) {
                 Log.e("Alarmist", "sfdsadf")
@@ -160,26 +174,36 @@ class Utilities {
         private fun createAlarmGoingOffNotification(fullScreenIntent: Intent, context: Context,
                                                     alarm: Alarm): Notification {
 
-            var contentIntent = Intent(context, MainActivity::class.java)
-            val contentPendingIntent = PendingIntent.getActivity(context, 0,
-                contentIntent, PendingIntent.FLAG_IMMUTABLE)
             val fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
                 fullScreenIntent, PendingIntent.FLAG_IMMUTABLE)
 
             var contentTitle = "Alarm is going off"
             if (!alarm.name.isNullOrBlank()) {
-                contentTitle = alarm.name
+                val alarmName = alarm.name
+                contentTitle = "$alarmName is going off"
             }
 
             return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(contentTitle)
+                .setContentText("Tap to snooze or shut off")
                 .setAutoCancel(true)
-                .setContentIntent(contentPendingIntent)
-                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setContentIntent(fullScreenPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .build()
+        }
+
+        fun startPlayingRingtone(context: Context) {
+            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ringtone = RingtoneManager.getRingtone(context, uri)
+            ringtone!!.play()
+        }
+
+        fun stopPlayingRingtone() {
+            if (ringtone != null) {
+                ringtone!!.stop()
+            }
         }
     }
 }

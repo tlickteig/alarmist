@@ -14,6 +14,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.alarmist.Alarmist.R;
 import com.alarmist.Alarmist.objects.Alarm;
 
 import java.time.LocalDate;
@@ -73,7 +74,9 @@ public class BackgroundProcessor extends Service {
 
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
             Notification.Builder notification = new Notification.Builder(this,
-                    Constants.NOTIFICATION_CHANNEL_ID).setContentText("Alarms are set");
+                    Constants.NOTIFICATION_CHANNEL_ID)
+                    .setContentText("Alarms are set")
+                    .setSmallIcon(R.drawable.ic_launcher_foreground);
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 startForeground(1001, notification.build());
@@ -93,11 +96,6 @@ public class BackgroundProcessor extends Service {
             if (alarm.isEnabled()) {
                 if (shouldAlarmBeGoingOff(alarm)) {
                     Utilities.Companion.setAlarmGoingOff(alarm, context);
-
-                    if (alarm.getScheduleMode() == AlarmSchedule.ONE_TIME) {
-                        alarm.setEnabled(false);
-                        DataAccess.Companion.saveOrUpdateAlarm(alarm, context);
-                    }
                 }
             }
         }
