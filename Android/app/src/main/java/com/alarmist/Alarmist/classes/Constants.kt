@@ -12,7 +12,7 @@ class Constants {
         const val BACKGROUND_THREAD_INTERVAL_MS = 60_000
 
         const val NOTIFICATION_CHANNEL_ID = "AlarmistNotifications"
-        const val NOTIFICATION_ID = 15433
+        const val NOTIFICATION_GOING_OFF_ID = 15433
     }
 }
 

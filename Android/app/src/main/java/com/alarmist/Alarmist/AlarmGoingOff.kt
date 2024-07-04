@@ -40,12 +40,8 @@ class AlarmGoingOff : ComponentActivity() {
                     ) {
                         Button(
                             onClick = {
-                                Utilities.stopPlayingRingtone()
-
-                                if (alarm.scheduleMode == AlarmSchedule.ONE_TIME) {
-                                    alarm.isEnabled = false
-                                    DataAccess.saveOrUpdateAlarm(alarm, context)
-                                }
+                                Utilities.stopAlarm(context, alarm)
+                                finish()
                             }
                         ) {
                             Text("Stop")

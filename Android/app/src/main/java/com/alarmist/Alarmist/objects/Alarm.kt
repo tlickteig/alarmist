@@ -1,6 +1,7 @@
 package com.alarmist.Alarmist.objects
 
 import com.alarmist.Alarmist.classes.AlarmSchedule
+import com.alarmist.Alarmist.classes.AlarmScheduleSerializer
 import com.alarmist.Alarmist.classes.DateSerializer
 import com.alarmist.Alarmist.classes.DaysOfWeek
 import com.alarmist.Alarmist.classes.TimeSerializer
@@ -14,7 +15,7 @@ import java.time.format.FormatStyle
 class Alarm {
     var id: Int = 0
     var name: String = ""
-    var scheduleMode: AlarmSchedule = AlarmSchedule.ONE_TIME
+    var scheduleMode: @Serializable(with = AlarmScheduleSerializer::class) AlarmSchedule = AlarmSchedule.ONE_TIME
     var isEnabled: Boolean = false
     var ringtones: List<String> = mutableListOf()
     var labels: HashSet<String> = hashSetOf()

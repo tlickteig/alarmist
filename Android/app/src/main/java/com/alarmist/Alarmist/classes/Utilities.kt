@@ -4,22 +4,19 @@ import android.Manifest
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.Ringtone
 import android.media.RingtoneManager
-import android.os.Build
 import android.util.Log
-import android.window.SplashScreen
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.ContextCompat.startForegroundService
 import com.alarmist.Alarmist.AlarmGoingOff
-import com.alarmist.Alarmist.MainActivity
 import com.alarmist.Alarmist.R
 import com.alarmist.Alarmist.objects.Alarm
 
@@ -159,7 +156,8 @@ class Utilities {
                             Manifest.permission.POST_NOTIFICATIONS
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-                        notify(Constants.NOTIFICATION_ID, notification)
+                        cancel(Constants.NOTIFICATION_GOING_OFF_ID)
+                        notify(Constants.NOTIFICATION_GOING_OFF_ID, notification)
                     }
                 }
 
@@ -170,18 +168,40 @@ class Utilities {
             }
         }
 
+        fun snoozeAlarm(context: Context, alarm: Alarm) {
+            NotificationManagerCompat.from(context).cancel(Constants.NOTIFICATION_GOING_OFF_ID)
+            stopPlayingRingtone()
+        }
+
+        fun stopAlarm(context: Context, alarm: Alarm) {
+            NotificationManagerCompat.from(context).cancel(Constants.NOTIFICATION_GOING_OFF_ID)
+            stopPlayingRingtone()
+
+            if (alarm.scheduleMode == AlarmSchedule.ONE_TIME) {
+                alarm.isEnabled = false
+                DataAccess.saveOrUpdateAlarm(alarm, context)
+            }
+        }
+
         // https://hackernoon.com/ditch-the-notification-and-show-an-activity-on-your-android-lock-screen-instead
         private fun createAlarmGoingOffNotification(fullScreenIntent: Intent, context: Context,
                                                     alarm: Alarm): Notification {
 
-            val fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
-                fullScreenIntent, PendingIntent.FLAG_IMMUTABLE)
-
+            val fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, FLAG_IMMUTABLE)
             var contentTitle = "Alarm is going off"
+            val alarmString = AlarmSerializer.serializeAlarm(alarm)
             if (!alarm.name.isNullOrBlank()) {
                 val alarmName = alarm.name
                 contentTitle = "$alarmName is going off"
             }
+
+            val snoozeIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "snooze" }
+            snoozeIntent.putExtra("alarmString", alarmString)
+            val snoozePendingIntent = PendingIntent.getBroadcast(context, 0, snoozeIntent, FLAG_MUTABLE)
+
+            val stopIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "stop" }
+            stopIntent.putExtra("alarmString", alarmString)
+            val stopPendingIntent = PendingIntent.getBroadcast(context, 0, stopIntent, FLAG_MUTABLE)
 
             return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(contentTitle)
@@ -191,6 +211,8 @@ class Utilities {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .addAction(R.drawable.ic_launcher_foreground, "Snooze", snoozePendingIntent)
+                .addAction(R.drawable.ic_launcher_foreground, "Stop", stopPendingIntent)
                 .build()
         }
 
