@@ -107,6 +107,7 @@ class DataAccess {
 class Utilities {
     companion object {
         private var ringtone: Ringtone? = null
+        var currentAlarmNotification: Alarm = Alarm()
 
         private fun areAnyAlarmsEnabled(context: Context): Boolean {
             var output = false
@@ -146,8 +147,7 @@ class Utilities {
                     context, AlarmGoingOff::class.java
                 )
 
-                val alarmString = AlarmSerializer.serializeAlarm(alarm)
-                intent.putExtra("alarmString", alarmString)
+                currentAlarmNotification = alarm
                 val notification = createAlarmGoingOffNotification(intent, context, alarm)
 
                 with (NotificationManagerCompat.from(context)) {
@@ -168,9 +168,11 @@ class Utilities {
             }
         }
 
-        fun snoozeAlarm(context: Context, alarm: Alarm) {
+        fun snoozeAlarm(context: Context, alarm: Alarm, snoozeMinutes: Int) {
             NotificationManagerCompat.from(context).cancel(Constants.NOTIFICATION_GOING_OFF_ID)
             stopPlayingRingtone()
+            alarm.snoozeMinutes = snoozeMinutes
+            DataAccess.saveOrUpdateAlarm(alarm, context)
         }
 
         fun stopAlarm(context: Context, alarm: Alarm) {
@@ -216,13 +218,13 @@ class Utilities {
                 .build()
         }
 
-        fun startPlayingRingtone(context: Context) {
+        private fun startPlayingRingtone(context: Context) {
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             ringtone = RingtoneManager.getRingtone(context, uri)
             ringtone!!.play()
         }
 
-        fun stopPlayingRingtone() {
+        private fun stopPlayingRingtone() {
             if (ringtone != null) {
                 ringtone!!.stop()
             }
