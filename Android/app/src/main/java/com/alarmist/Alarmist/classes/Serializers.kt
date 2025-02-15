@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter
 class AlarmScheduleSerializer : KSerializer<AlarmSchedule> {
 
     override fun serialize(encoder: Encoder, value: AlarmSchedule) {
-        value.toString()
+        encoder.encodeString(value.toString())
     }
 
     override val descriptor: SerialDescriptor
