@@ -178,6 +178,7 @@ class Utilities {
         fun stopAlarm(context: Context, alarm: Alarm) {
             NotificationManagerCompat.from(context).cancel(Constants.NOTIFICATION_GOING_OFF_ID)
             stopPlayingRingtone()
+            alarm.snoozeMinutes = 0
 
             if (alarm.scheduleMode == AlarmSchedule.ONE_TIME) {
                 alarm.isEnabled = false

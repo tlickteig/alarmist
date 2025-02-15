@@ -260,6 +260,7 @@ class NewAlarm : ComponentActivity() {
                                 labels = tempLabels
                             }
 
+                            alarm.snoozeMinutes = 0
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
                             finish()
                         }

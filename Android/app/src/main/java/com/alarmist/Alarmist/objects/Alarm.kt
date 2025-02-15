@@ -6,10 +6,12 @@ import com.alarmist.Alarmist.classes.DateSerializer
 import com.alarmist.Alarmist.classes.DaysOfWeek
 import com.alarmist.Alarmist.classes.TimeSerializer
 import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Locale
 
 @Serializable
 class Alarm {
@@ -52,7 +54,16 @@ class Alarm {
 
     var subText: String = ""
         get() {
-            return "Hello World!"
+            var output = ""
+            if (snoozeMinutes > 0) {
+                var willGoOff = this.time
+                willGoOff = willGoOff.plusMinutes(snoozeMinutes.toLong())
+                output = "Alarm snoozed until ${willGoOff.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))}"
+            } else if (title != null && title != "") {
+                output = title
+            }
+
+            return output
         }
 
     var title: String = ""
