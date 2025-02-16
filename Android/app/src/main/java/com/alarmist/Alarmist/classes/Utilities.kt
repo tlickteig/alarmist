@@ -1,6 +1,7 @@
 package com.alarmist.Alarmist.classes
 
 import android.Manifest
+import android.app.Activity
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.PendingIntent
@@ -141,6 +142,19 @@ class NotificationHelper {
 
         fun areNotificationsEnabled(context: Context): Boolean {
             return NotificationManagerCompat.from(context).areNotificationsEnabled()
+        }
+
+        fun requestNotificationPermission(activity: Activity) {
+            val permissions: Array<String> = arrayOf( "android.permission.POST_NOTIFICATIONS" )
+            ActivityCompat.requestPermissions(activity, permissions, 1)
+        }
+
+        fun openNotificationSettings(context: Context) {
+            var intent = Intent();
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
+            context.startActivity(intent)
         }
     }
 }

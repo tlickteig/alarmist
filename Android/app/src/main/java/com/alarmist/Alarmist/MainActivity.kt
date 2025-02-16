@@ -89,6 +89,9 @@ class MainActivity : ComponentActivity() {
 
                             TextButton(onClick = {
                                 var test = NotificationHelper.areNotificationsEnabled(context)
+                                if (!test) {
+                                    NotificationHelper.openNotificationSettings(context)
+                                }
                             }) {
                                 Text("Test")
                             }
