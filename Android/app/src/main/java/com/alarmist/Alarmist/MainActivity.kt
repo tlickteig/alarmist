@@ -51,6 +51,7 @@ import com.alarmist.Alarmist.objects.Alarm
 import com.alarmist.Alarmist.classes.CustomFonts
 import com.alarmist.Alarmist.classes.DataAccess
 import com.alarmist.Alarmist.classes.FontAwesomeConstants
+import com.alarmist.Alarmist.classes.NotificationHelper
 import com.alarmist.Alarmist.classes.Utilities
 import kotlinx.coroutines.launch
 
@@ -87,7 +88,7 @@ class MainActivity : ComponentActivity() {
                                 })
 
                             TextButton(onClick = {
-                                Utilities.setAlarmGoingOff(alarmList[0], context)
+                                var test = NotificationHelper.areNotificationsEnabled(context)
                             }) {
                                 Text("Test")
                             }

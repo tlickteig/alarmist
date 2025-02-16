@@ -104,6 +104,47 @@ class DataAccess {
     }
 }
 
+class NotificationHelper {
+    companion object {
+        // https://hackernoon.com/ditch-the-notification-and-show-an-activity-on-your-android-lock-screen-instead
+        fun createAlarmGoingOffNotification(fullScreenIntent: Intent, context: Context,
+                                                    alarm: Alarm): Notification {
+
+            val fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, FLAG_IMMUTABLE)
+            var contentTitle = "Alarm is going off"
+            val alarmString = AlarmSerializer.serializeAlarm(alarm)
+            if (!alarm.name.isNullOrBlank()) {
+                val alarmName = alarm.name
+                contentTitle = "$alarmName is going off"
+            }
+
+            val snoozeIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "snooze" }
+            snoozeIntent.putExtra("alarmString", alarmString)
+            val snoozePendingIntent = PendingIntent.getBroadcast(context, 0, snoozeIntent, FLAG_MUTABLE)
+
+            val stopIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "stop" }
+            stopIntent.putExtra("alarmString", alarmString)
+            val stopPendingIntent = PendingIntent.getBroadcast(context, 0, stopIntent, FLAG_MUTABLE)
+
+            return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
+                .setContentTitle(contentTitle)
+                .setContentText("Tap to snooze or shut off")
+                .setAutoCancel(true)
+                .setContentIntent(fullScreenPendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .addAction(R.drawable.ic_launcher_foreground, "Snooze", snoozePendingIntent)
+                .addAction(R.drawable.ic_launcher_foreground, "Stop", stopPendingIntent)
+                .build()
+        }
+
+        fun areNotificationsEnabled(context: Context): Boolean {
+            return NotificationManagerCompat.from(context).areNotificationsEnabled()
+        }
+    }
+}
+
 class Utilities {
     companion object {
         private var ringtone: Ringtone? = null
@@ -148,7 +189,7 @@ class Utilities {
                 )
 
                 currentAlarmNotification = alarm
-                val notification = createAlarmGoingOffNotification(intent, context, alarm)
+                val notification = NotificationHelper.createAlarmGoingOffNotification(intent, context, alarm)
 
                 with (NotificationManagerCompat.from(context)) {
                     if (ActivityCompat.checkSelfPermission(
@@ -184,39 +225,6 @@ class Utilities {
                 alarm.isEnabled = false
                 DataAccess.saveOrUpdateAlarm(alarm, context)
             }
-        }
-
-        // https://hackernoon.com/ditch-the-notification-and-show-an-activity-on-your-android-lock-screen-instead
-        private fun createAlarmGoingOffNotification(fullScreenIntent: Intent, context: Context,
-                                                    alarm: Alarm): Notification {
-
-            val fullScreenPendingIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, FLAG_IMMUTABLE)
-            var contentTitle = "Alarm is going off"
-            val alarmString = AlarmSerializer.serializeAlarm(alarm)
-            if (!alarm.name.isNullOrBlank()) {
-                val alarmName = alarm.name
-                contentTitle = "$alarmName is going off"
-            }
-
-            val snoozeIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "snooze" }
-            snoozeIntent.putExtra("alarmString", alarmString)
-            val snoozePendingIntent = PendingIntent.getBroadcast(context, 0, snoozeIntent, FLAG_MUTABLE)
-
-            val stopIntent = Intent(context, NotificationBroadcastReceiver::class.java).apply { action = "stop" }
-            stopIntent.putExtra("alarmString", alarmString)
-            val stopPendingIntent = PendingIntent.getBroadcast(context, 0, stopIntent, FLAG_MUTABLE)
-
-            return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
-                .setContentTitle(contentTitle)
-                .setContentText("Tap to snooze or shut off")
-                .setAutoCancel(true)
-                .setContentIntent(fullScreenPendingIntent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .addAction(R.drawable.ic_launcher_foreground, "Snooze", snoozePendingIntent)
-                .addAction(R.drawable.ic_launcher_foreground, "Stop", stopPendingIntent)
-                .build()
         }
 
         private fun startPlayingRingtone(context: Context) {
