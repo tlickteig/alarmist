@@ -156,7 +156,7 @@ class MainActivity : ComponentActivity() {
                                 Column(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Notifications are not enabled. This may impact the functionality of this app")
+                                    Text("Notifications are not enabled. This may severely impact functionality")
                                     TextButton(
                                         onClick = {
                                             NotificationHelper.openNotificationSettings(context)
@@ -191,7 +191,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                        Lifecycle.Event.ON_CREATE -> {
+                        Lifecycle.Event.ON_START -> {
                             if (!areNotificationsEnabled) {
                                 NotificationHelper.requestNotificationPermission(activity)
                             }
