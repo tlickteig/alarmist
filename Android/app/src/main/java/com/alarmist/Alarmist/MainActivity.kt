@@ -1,6 +1,7 @@
 package com.alarmist.Alarmist
 
 import android.app.Activity
+import android.app.Notification
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -93,15 +94,6 @@ class MainActivity : ComponentActivity() {
                                     context.startActivity(intent)
                                 }
                             )
-
-                            /*TextButton(onClick = {
-                                var test = NotificationHelper.areNotificationsEnabled(context)
-                                if (!test) {
-
-                                }
-                            }) {
-                                Text("Test")
-                            }*/
                         }
                     }
                 ) {
@@ -188,8 +180,8 @@ class MainActivity : ComponentActivity() {
                         alarmList.add(alarm)
                     }
 
-                    showNotificationAlert.value =
-                        !NotificationHelper.areNotificationsEnabled(context)
+                    val areNotificationsEnabled = NotificationHelper.areNotificationsEnabled(context)
+                    showNotificationAlert.value = !areNotificationsEnabled
 
                     when (event) {
                         Lifecycle.Event.ON_RESUME -> {
@@ -199,7 +191,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+                        Lifecycle.Event.ON_CREATE -> {
+                            if (!areNotificationsEnabled) {
+                                NotificationHelper.requestNotificationPermission(activity)
+                            }
+                        }
                         else -> { /* Don't do anything */ }
+
                     }
                 }
             }
