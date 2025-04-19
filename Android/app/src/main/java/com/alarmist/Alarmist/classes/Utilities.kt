@@ -228,17 +228,28 @@ class Utilities {
             stopPlayingRingtone()
             alarm.snoozeMinutes = snoozeMinutes
             DataAccess.saveOrUpdateAlarm(alarm, context)
+            currentAlarmNotification = Alarm()
         }
 
         fun stopAlarm(context: Context, alarm: Alarm) {
             NotificationManagerCompat.from(context).cancel(Constants.NOTIFICATION_GOING_OFF_ID)
             stopPlayingRingtone()
             alarm.snoozeMinutes = 0
+            currentAlarmNotification = Alarm()
 
             if (alarm.scheduleMode == AlarmSchedule.ONE_TIME) {
                 alarm.isEnabled = false
-                DataAccess.saveOrUpdateAlarm(alarm, context)
             }
+            DataAccess.saveOrUpdateAlarm(alarm, context)
+        }
+
+        fun isAnAlarmGoingOff(): Boolean {
+            var output = true;
+            if (currentAlarmNotification.id == 0) {
+                output = false
+            }
+
+            return output;
         }
 
         private fun startPlayingRingtone(context: Context) {

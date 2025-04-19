@@ -60,6 +60,8 @@ import com.alarmist.Alarmist.classes.FontAwesomeConstants
 import com.alarmist.Alarmist.classes.NotificationHelper
 import com.alarmist.Alarmist.classes.Utilities
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -72,8 +74,9 @@ class MainActivity : ComponentActivity() {
                 val activity = LocalContext.current as Activity
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
-                val alarmList = remember { mutableStateListOf<Alarm>() }
-                var showNotificationAlert = remember { mutableStateOf(false) }
+                var alarmList = remember { mutableStateListOf<Alarm>() }
+                val showNotificationAlert = remember { mutableStateOf(false) }
+                var isAnAlarmGoingOff = remember { mutableStateOf(false ) }
                 Utilities.setBackgroundThread(context)
 
                 ModalNavigationDrawer(
@@ -146,7 +149,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        if (showNotificationAlert.value) {
+                        if (showNotificationAlert.value && !isAnAlarmGoingOff.value) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxHeight()
@@ -154,7 +157,9 @@ class MainActivity : ComponentActivity() {
                                 verticalAlignment = Alignment.Bottom
                             ) {
                                 Column(
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color.Red)
                                 ) {
                                     Text("Notifications are not enabled. This may severely impact functionality")
                                     TextButton(
@@ -167,14 +172,42 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+
+                        if (isAnAlarmGoingOff.value) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(innerPadding),
+                                verticalAlignment = Alignment.Bottom
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Color.Yellow)
+                                        .clickable {
+                                            val alarm = Utilities.currentAlarmNotification
+                                            val alarmString = AlarmSerializer.serializeAlarm(alarm)
+                                            val stopIntent = Intent(
+                                                context, AlarmGoingOff::class.java
+                                            )
+                                            stopIntent.putExtra("alarmString", alarmString)
+                                            context.startActivity(stopIntent)
+                                        }
+                                ) {
+                                    Spacer(modifier = Modifier.height(5.dp))
+                                    Text("Tap to view alarm currently going off")
+                                    Spacer(modifier = Modifier.height(5.dp))
+                                }
+                            }
+                        }
                     }
                 }
 
                 OnLifecycleEvent { owner, event ->
                     Utilities.setBackgroundThread(context)
 
-                    var tempAlarmList = DataAccess.returnAllAlarms(activity)
-                    alarmList.clear()
+                    val tempAlarmList = DataAccess.returnAllAlarms(activity)
+                    alarmList = SnapshotStateList()
 
                     for (alarm in tempAlarmList) {
                         alarmList.add(alarm)
@@ -195,6 +228,12 @@ class MainActivity : ComponentActivity() {
                             if (!areNotificationsEnabled) {
                                 NotificationHelper.requestNotificationPermission(activity)
                             }
+
+                            Timer().schedule(object: TimerTask() {
+                                override fun run() {
+                                    isAnAlarmGoingOff.value = Utilities.isAnAlarmGoingOff()
+                                }
+                            }, 0L, 2000L)
                         }
                         else -> { /* Don't do anything */ }
 
