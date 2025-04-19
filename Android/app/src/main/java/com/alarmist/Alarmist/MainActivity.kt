@@ -5,12 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
@@ -63,10 +68,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 val context = LocalContext.current
-                var activity = LocalContext.current as Activity
+                val activity = LocalContext.current as Activity
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val alarmList = remember { mutableStateListOf<Alarm>() }
+                var showNotificationAlert = remember { mutableStateOf(false) }
                 Utilities.setBackgroundThread(context)
 
                 ModalNavigationDrawer(
@@ -85,16 +91,17 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                     context.startActivity(intent)
-                                })
+                                }
+                            )
 
-                            TextButton(onClick = {
+                            /*TextButton(onClick = {
                                 var test = NotificationHelper.areNotificationsEnabled(context)
                                 if (!test) {
-                                    NotificationHelper.openNotificationSettings(context)
+
                                 }
                             }) {
                                 Text("Test")
-                            }
+                            }*/
                         }
                     }
                 ) {
@@ -129,11 +136,43 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) { innerPadding ->
-                        LazyColumn(
-                            modifier = Modifier.padding(innerPadding)
+                        Column(
+                            modifier = Modifier.background(Color.Yellow)
                         ) {
-                            items(alarmList) {item ->
-                                AlarmItem(item, alarmList)
+                            LazyColumn(
+                                modifier = Modifier.padding(innerPadding)
+                            ) {
+                                items(alarmList) { item ->
+                                    AlarmItem(item, alarmList)
+                                }
+
+                                if (showNotificationAlert.value) {
+                                    item {
+                                        Spacer(modifier = Modifier.height(100.dp))
+                                    }
+                                }
+                            }
+                        }
+
+                        if (showNotificationAlert.value) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(innerPadding),
+                                verticalAlignment = Alignment.Bottom
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Notifications are not enabled. This may impact the functionality of this app")
+                                    TextButton(
+                                        onClick = {
+                                            NotificationHelper.openNotificationSettings(context)
+                                        }
+                                    ) {
+                                        Text("Tap to enable")
+                                    }
+                                }
                             }
                         }
                     }
@@ -148,6 +187,9 @@ class MainActivity : ComponentActivity() {
                     for (alarm in tempAlarmList) {
                         alarmList.add(alarm)
                     }
+
+                    showNotificationAlert.value =
+                        !NotificationHelper.areNotificationsEnabled(context)
 
                     when (event) {
                         Lifecycle.Event.ON_RESUME -> {
