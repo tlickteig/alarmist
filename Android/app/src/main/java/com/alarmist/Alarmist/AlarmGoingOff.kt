@@ -28,7 +28,7 @@ class AlarmGoingOff : ComponentActivity() {
 
         val extras = this.intent.extras
         val alarmString = extras!!.getString("alarmString")
-        var alarm = AlarmSerializer.deserializeAlarm(alarmString!!)
+        val alarm = AlarmSerializer.deserializeAlarm(alarmString!!)
 
         setContent {
 

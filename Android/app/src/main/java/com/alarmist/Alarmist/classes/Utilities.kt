@@ -92,8 +92,8 @@ class DataAccess {
             var output: List<String> = mutableListOf()
 
             for (alarm in alarms) {
-                var category = alarm.category
-                if (!category.isNullOrBlank()) {
+                val category = alarm.category
+                if (category.isNotBlank()) {
                     if (!output.contains(category)) {
                         output += listOf(category)
                     }

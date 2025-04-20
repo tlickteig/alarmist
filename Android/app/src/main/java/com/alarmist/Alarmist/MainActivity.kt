@@ -76,6 +76,7 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 var alarmList by remember { mutableStateOf(listOf(Alarm())) }
+                var alarmCategories by remember { mutableStateOf(listOf(String())) }
                 val showNotificationAlert = remember { mutableStateOf(false) }
                 val isAnAlarmGoingOff = remember { mutableStateOf(false ) }
                 Utilities.setBackgroundThread(context)
@@ -208,6 +209,7 @@ class MainActivity : ComponentActivity() {
                     Utilities.setBackgroundThread(context)
                     alarmList = mutableListOf()
                     alarmList = DataAccess.returnAllAlarms(activity).toMutableList()
+                    alarmCategories = DataAccess.returnAllCategories(context)
 
                     val areNotificationsEnabled = NotificationHelper.areNotificationsEnabled(context)
                     showNotificationAlert.value = !areNotificationsEnabled
