@@ -59,6 +59,7 @@ import com.alarmist.Alarmist.classes.DataAccess
 import com.alarmist.Alarmist.classes.FontAwesomeConstants
 import com.alarmist.Alarmist.classes.NotificationHelper
 import com.alarmist.Alarmist.classes.Utilities
+import com.alarmist.Alarmist.composables.AlarmItem
 import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
@@ -237,67 +238,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    @Composable
-    fun AlarmItem(alarm: Alarm) {
-        val context = LocalContext.current
-        val activity = LocalContext.current as Activity
-
-        Column (
-            modifier = Modifier.clickable {
-                val intent = Intent(
-                    context, NewAlarm::class.java
-                )
-
-                val alarmString = AlarmSerializer.serializeAlarm(alarm)
-                intent.putExtra("alarm", alarmString)
-                context.startActivity(intent)
-            }
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Text(
-                    text = alarm.title,
-                    fontSize = 30.sp
-                )
-
-                Box(
-                    contentAlignment = Alignment.CenterEnd,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Switch(
-                        checked = alarm.isEnabled,
-                        onCheckedChange = {
-                            alarm.isEnabled = it
-                            DataAccess.saveOrUpdateAlarm(alarm, activity)
-                            Utilities.setBackgroundThread(context)
-                        }
-                    )
-                }
-            }
-
-            if (alarm.subText.isNotBlank()) {
-                Text(
-                    text = alarm.subText,
-                    modifier = Modifier.padding(5.dp)
-                )
-            } else {
-                Text(
-                    text = "",
-                    modifier = Modifier.padding(5.dp)
-                )
-            }
-        }
-
-        HorizontalDivider(
-            thickness = 2.dp
-        )
     }
 
     // https://stackoverflow.com/questions/66546962/jetpack-compose-how-do-i-refresh-a-screen-when-app-returns-to-foreground
