@@ -26,7 +26,7 @@ class DataAccess {
     companion object {
         fun returnAllAlarms(context: Context): List<Alarm> {
 
-            var output: List<Alarm> = mutableListOf();
+            var output: MutableList<Alarm> = mutableListOf()
             val sharedPref = context?.getSharedPreferences(
                 Constants.SHARED_PREFERENCES_FOR_ALL_ALARMS, Context.MODE_PRIVATE
             )

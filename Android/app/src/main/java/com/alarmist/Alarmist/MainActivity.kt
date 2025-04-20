@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                 val activity = LocalContext.current as Activity
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
-                var alarmList = remember { mutableStateListOf<Alarm>() }
+                var alarmList by remember { mutableStateOf(listOf(Alarm())) }
                 val showNotificationAlert = remember { mutableStateOf(false) }
                 var isAnAlarmGoingOff = remember { mutableStateOf(false ) }
                 Utilities.setBackgroundThread(context)
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             ) {
                                 items(alarmList) { item ->
-                                    AlarmItem(item, alarmList)
+                                    AlarmItem(item, alarmList.toMutableList())
                                 }
 
                                 if (showNotificationAlert.value) {
@@ -205,13 +205,7 @@ class MainActivity : ComponentActivity() {
 
                 OnLifecycleEvent { owner, event ->
                     Utilities.setBackgroundThread(context)
-
-                    val tempAlarmList = DataAccess.returnAllAlarms(activity)
-                    alarmList = SnapshotStateList()
-
-                    for (alarm in tempAlarmList) {
-                        alarmList.add(alarm)
-                    }
+                    alarmList = DataAccess.returnAllAlarms(activity).toMutableList()
 
                     val areNotificationsEnabled = NotificationHelper.areNotificationsEnabled(context)
                     showNotificationAlert.value = !areNotificationsEnabled
@@ -244,7 +238,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AlarmItem(alarm: Alarm, alarmList: SnapshotStateList<Alarm>) {
+    fun AlarmItem(alarm: Alarm, alarmList: MutableList<Alarm>) {
         var checked by remember { mutableStateOf(alarm.isEnabled) }
         var context = LocalContext.current
         var activity = LocalContext.current as Activity
@@ -284,11 +278,9 @@ class MainActivity : ComponentActivity() {
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
                             Utilities.setBackgroundThread(context)
 
-                            var tempAlarmList = DataAccess.returnAllAlarms(activity)
-                            alarmList.clear()
-
-                            for (alarm in tempAlarmList) {
-                                alarmList.add(alarm)
+                            val tempAlarmList = DataAccess.returnAllAlarms(activity)
+                            for (tempAlarm in tempAlarmList) {
+                                alarmList.add(tempAlarm)
                             }
                         }
                     )
