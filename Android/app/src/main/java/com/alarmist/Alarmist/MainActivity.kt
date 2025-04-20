@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
                 var alarmList by remember { mutableStateOf(listOf(Alarm())) }
                 val showNotificationAlert = remember { mutableStateOf(false) }
-                var isAnAlarmGoingOff = remember { mutableStateOf(false ) }
+                val isAnAlarmGoingOff = remember { mutableStateOf(false ) }
                 Utilities.setBackgroundThread(context)
 
                 ModalNavigationDrawer(
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                 label = { Text("New Alarm") },
                                 selected = false,
                                 onClick = {
-                                    var intent = Intent(
+                                    val intent = Intent(
                                         context, NewAlarm::class.java
                                     )
 
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding)
                             ) {
                                 items(alarmList) { item ->
-                                    AlarmItem(item, alarmList.toMutableList())
+                                    AlarmItem(item)
                                 }
 
                                 if (showNotificationAlert.value) {
@@ -205,6 +205,7 @@ class MainActivity : ComponentActivity() {
 
                 OnLifecycleEvent { owner, event ->
                     Utilities.setBackgroundThread(context)
+                    alarmList = mutableListOf()
                     alarmList = DataAccess.returnAllAlarms(activity).toMutableList()
 
                     val areNotificationsEnabled = NotificationHelper.areNotificationsEnabled(context)
@@ -226,8 +227,9 @@ class MainActivity : ComponentActivity() {
                             Timer().schedule(object: TimerTask() {
                                 override fun run() {
                                     isAnAlarmGoingOff.value = Utilities.isAnAlarmGoingOff()
+                                    alarmList = DataAccess.returnAllAlarms(activity).toMutableList()
                                 }
-                            }, 0L, 2000L)
+                            }, 0L, 1000L)
                         }
                         else -> { /* Don't do anything */ }
 
@@ -238,14 +240,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun AlarmItem(alarm: Alarm, alarmList: MutableList<Alarm>) {
-        var checked by remember { mutableStateOf(alarm.isEnabled) }
-        var context = LocalContext.current
-        var activity = LocalContext.current as Activity
+    fun AlarmItem(alarm: Alarm) {
+        val context = LocalContext.current
+        val activity = LocalContext.current as Activity
 
         Column (
             modifier = Modifier.clickable {
-                var intent = Intent(
+                val intent = Intent(
                     context, NewAlarm::class.java
                 )
 
@@ -271,23 +272,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Switch(
-                        checked = checked,
+                        checked = alarm.isEnabled,
                         onCheckedChange = {
-                            checked = it
-                            alarm.isEnabled = checked
+                            alarm.isEnabled = it
                             DataAccess.saveOrUpdateAlarm(alarm, activity)
                             Utilities.setBackgroundThread(context)
-
-                            val tempAlarmList = DataAccess.returnAllAlarms(activity)
-                            for (tempAlarm in tempAlarmList) {
-                                alarmList.add(tempAlarm)
-                            }
                         }
                     )
                 }
             }
 
-            if (!alarm.subText.isNullOrBlank()) {
+            if (alarm.subText.isNotBlank()) {
                 Text(
                     text = alarm.subText,
                     modifier = Modifier.padding(5.dp)

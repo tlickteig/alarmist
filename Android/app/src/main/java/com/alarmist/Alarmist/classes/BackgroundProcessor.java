@@ -94,7 +94,7 @@ public class BackgroundProcessor extends Service {
 
         for (Alarm alarm : alarms) {
             if (alarm.isEnabled()) {
-                if (shouldAlarmBeGoingOff(alarm)) {
+                if (shouldAlarmBeGoingOff(alarm) && !Utilities.Companion.isAnAlarmGoingOff()) {
                     Utilities.Companion.setAlarmGoingOff(alarm, context);
                 }
             }
